@@ -17,7 +17,6 @@ interface Ball {
 const props = defineProps<{
   gravity: number;      // m/s² (input)
   ballDensity: number;  // kg/m³ (input)
-  resetCounter: number; // incremented by parent to trigger a reset
 }>()
 
 const emits = defineEmits<{
@@ -79,11 +78,6 @@ watch(() => props.ballDensity, (newDensity) => {
   mass = computeMass(newDensity);
   dragConstant = computeDragConstant();
   restitutionCoefficient = computeRestitution(newDensity);
-});
-
-// Watch the external resetCounter: when it changes, reset the simulation.
-watch(() => props.resetCounter, () => {
-  resetSimulation();
 });
 
 // --- Event Handlers for Dragging ---

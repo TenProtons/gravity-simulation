@@ -15,7 +15,6 @@
       <Simulation 
         :gravity="simulationGravity" 
         :ballDensity="simulationDensity" 
-        :resetCounter="resetCounter" 
         @simulationEnded="handleSimulationEnded"
         @simulationStarted="handleSimulationStarted"
       />
@@ -43,8 +42,6 @@ export default defineComponent({
     const simulationGravity = ref(9.81);
     const simulationDensity = ref(1000);
     const simulationStarted = ref(false);
-    // Counter used to trigger a reset in the Simulation component.
-    const resetCounter = ref(0);
     const theme = ref('light');
 
     function handleSimulationEnded() {
@@ -63,7 +60,6 @@ export default defineComponent({
       simulationGravity,
       simulationDensity,
       simulationStarted,
-      resetCounter,
       theme,
       handleSimulationEnded,
       handleSimulationStarted,
