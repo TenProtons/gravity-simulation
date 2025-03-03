@@ -14,9 +14,7 @@
       />
       <Simulation 
         :gravity="simulationGravity" 
-        :ballDensity="simulationDensity" 
-        @simulationEnded="handleSimulationEnded"
-        @simulationStarted="handleSimulationStarted"
+        :ballDensity="simulationDensity"
       />
     </div>
   </div>
@@ -41,16 +39,7 @@ export default defineComponent({
     // Reactive values for gravity and density across the entire project.
     const simulationGravity = ref(9.81);
     const simulationDensity = ref(1000);
-    const simulationStarted = ref(false);
     const theme = ref('light');
-
-    function handleSimulationEnded() {
-      simulationStarted.value = false;
-    }
-
-    function handleSimulationStarted() {
-      simulationStarted.value = true;
-    }
 
     function toggleTheme(newTheme: string) {
       theme.value = newTheme;
@@ -59,10 +48,7 @@ export default defineComponent({
     return {
       simulationGravity,
       simulationDensity,
-      simulationStarted,
       theme,
-      handleSimulationEnded,
-      handleSimulationStarted,
       toggleTheme
     };
   }
