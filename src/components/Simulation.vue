@@ -124,7 +124,19 @@ export default defineComponent({
         mass = computeMass(newDensity);
         dragConstant = computeDragConstant(mass);
         restitution = computeRestitution(newDensity);
+        // Redraw to update the weight display
+        draw();
       }
+    );
+
+    // Watch for changes in gravity
+    watch(
+      () => props.gravity,
+      () => {
+        // Redraw with new gravity (which affects weight)
+        draw();
+      },
+      { immediate: true } // Ensure it runs on initial mount
     );
 
     // Add a watch for scaleHeight changes
@@ -330,20 +342,38 @@ export default defineComponent({
       }
     }
 
-    function drawBallDiameter() {
+    function drawBallInfo() {
       if (!ctx.value) return;
       const context = ctx.value;
       
       // Calculate the ball diameter in meters (2 * radius)
       const ballDiameter = BALL_RADIUS_METERS.value * 2;
       
+      // Recalculate mass to ensure it's current
+      const currentMass = computeMass(props.ballDensity);
+      
+      // Calculate the ball weight in kg (mass * gravity)
+      const ballWeight = currentMass * props.gravity / 9.81; // Convert to weight in kg
+      
+      // Format the weight with appropriate units (g or kg)
+      let weightText;
+      if (ballWeight < 1) {
+        // Show in grams if less than 1kg
+        weightText = `${(ballWeight * 1000).toFixed(0)}g`;
+      } else {
+        // Show in kg with 2 decimal places
+        weightText = `${ballWeight.toFixed(2)}kg`;
+      }
+      
       // Display at the top of the canvas
       context.font = '12px sans-serif';
       context.textAlign = 'center';
       context.textBaseline = 'top';
       context.fillStyle = '#000';
+      
+      // Display diameter and weight
       context.fillText(
-        `Ball Ø: ${ballDiameter.toFixed(2)}m`, 
+        `Ball Ø: ${ballDiameter.toFixed(2)}m   Weight: ${weightText}`, 
         scaleMargin + (canvasWidth - scaleMargin) / 2, 
         5
       );
@@ -357,8 +387,8 @@ export default defineComponent({
       // Draw the scale on the left side
       drawScale();
       
-      // Draw the ball diameter text
-      drawBallDiameter();
+      // Draw the ball info (diameter and weight)
+      drawBallInfo();
 
       // Draw the floor as a horizontal line in the simulation area
       const floorYpx = meterToPixel(0);
