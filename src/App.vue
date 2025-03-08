@@ -22,7 +22,7 @@
           :scaleHeight="simulationScaleHeight"
           @fallTimeUpdate="handleFallTimeUpdate"
         />
-        <div class="fall-time-indicator" v-if="showFallTime">
+        <div class="fall-time-indicator">
           <span>Fall time: {{ fallTimeDisplay }}</span>
         </div>
       </div>
@@ -45,17 +45,15 @@ const simulationScaleHeight = ref(1) // Default to 1 meter
 const theme = ref('light')
 
 // Fall time tracking
-const fallTime = ref<number | null>(null);
+const fallTime = ref<number | null>(0); // Initialize to 0
 const isMeasuring = ref(false);
-const showFallTime = ref(false);
 
 const fallTimeDisplay = computed(() => {
-  if (isMeasuring.value) {
-    return 'measuring...';
-  } else if (fallTime.value !== null) {
+  if (fallTime.value === null) {
+    return '0.000s';
+  } else {
     return `${fallTime.value.toFixed(3)}s`;
   }
-  return '';
 });
 
 function toggleTheme(newTheme: string) {
@@ -65,7 +63,6 @@ function toggleTheme(newTheme: string) {
 function handleFallTimeUpdate(data: { time: number | null, measuring: boolean }) {
   fallTime.value = data.time;
   isMeasuring.value = data.measuring;
-  showFallTime.value = true;
 }
 </script>
 

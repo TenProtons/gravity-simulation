@@ -330,6 +330,13 @@ export default defineComponent({
           ball.y = props.scaleHeight;
           ball.v = 0; // just stop if user flung it too high
         }
+
+        // Update fall time continuously during the fall
+        if (fallStartTime !== null && fallEndTime === null) {
+          const currentTime = performance.now();
+          const currentDuration = (currentTime - fallStartTime) / 1000;
+          emit('fallTimeUpdate', { time: currentDuration, measuring: true });
+        }
       }
 
       draw();
