@@ -1,10 +1,12 @@
 <template>
-  <canvas
-    ref="canvasRef"
-    :width="canvasWidth"
-    :height="canvasHeight"
-    class="simulation-canvas"
-  ></canvas>
+  <div class="simulation-container">
+    <canvas
+      ref="canvasRef"
+      :width="canvasWidth"
+      :height="canvasHeight"
+      class="simulation-canvas"
+    ></canvas>
+  </div>
 </template>
 
 <script lang="ts">
@@ -14,7 +16,8 @@ import {
   onMounted,
   onUnmounted,
   watch,
-  computed
+  computed,
+  defineEmits
 } from 'vue';
 
 export default defineComponent({
@@ -37,7 +40,8 @@ export default defineComponent({
       default: 1
     }
   },
-  setup(props) {
+  emits: ['fallTimeUpdate'],
+  setup(props, { emit }) {
     /*********************************
      *    1. CONSTANTS & VARIABLES   *
      *********************************/
@@ -213,6 +217,10 @@ export default defineComponent({
       return dx * dx + dy * dy <= minInteractionRadius * minInteractionRadius;
     }
 
+    // Add these variables to track fall time
+    let fallStartTime: number | null = null;
+    let fallEndTime: number | null = null;
+    
     function onMouseDown(event: MouseEvent | TouchEvent) {
       event.preventDefault();
       const pos = getMousePos(event);
@@ -244,6 +252,14 @@ export default defineComponent({
         isDragging = false;
         simulationRunning = true;
         lastTimestamp = null;
+        
+        // Reset fall time tracking when ball is released
+        if (ball.y > 0) {
+          fallStartTime = performance.now();
+          fallEndTime = null;
+          emit('fallTimeUpdate', { time: null, measuring: true });
+        }
+        
         if (!animationFrameId) {
           animationFrameId = requestAnimationFrame(simulationLoop);
         }
@@ -295,6 +311,14 @@ export default defineComponent({
         if (ball.y < 0) {
           ball.y = 0;
           ball.v = -restitution * ball.v;
+          
+          // Record fall time on first contact with ground
+          if (fallStartTime !== null && fallEndTime === null) {
+            fallEndTime = performance.now();
+            const fallDuration = (fallEndTime - fallStartTime) / 1000; // Convert to seconds
+            emit('fallTimeUpdate', { time: fallDuration, measuring: false });
+          }
+          
           // If velocity is tiny, stop.
           if (Math.abs(ball.v) < 0.05) {
             ball.v = 0;
@@ -471,6 +495,13 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.simulation-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .simulation-canvas {
   border: 1px solid #ccc;
   touch-action: none; /* helps with mobile dragging */

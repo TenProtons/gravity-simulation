@@ -14,18 +14,24 @@
         v-model:ballDiameter="simulationBallDiameter"
         v-model:scaleHeight="simulationScaleHeight"
       />
-      <Simulation 
-        :gravity="simulationGravity" 
-        :ballDensity="simulationDensity"
-        :ballDiameter="simulationBallDiameter"
-        :scaleHeight="simulationScaleHeight"
-      />
+      <div class="simulation-section">
+        <Simulation 
+          :gravity="simulationGravity" 
+          :ballDensity="simulationDensity"
+          :ballDiameter="simulationBallDiameter"
+          :scaleHeight="simulationScaleHeight"
+          @fallTimeUpdate="handleFallTimeUpdate"
+        />
+        <div class="fall-time-indicator" v-if="showFallTime">
+          <span>Fall time: {{ fallTimeDisplay }}</span>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import Controls from './components/Controls.vue'
 import Simulation from './components/Simulation.vue'
 import LanguageSwitcher from './components/LanguageSwitcher.vue'
@@ -38,8 +44,28 @@ const simulationBallDiameter = ref(0.2) // Default to 20cm diameter
 const simulationScaleHeight = ref(1) // Default to 1 meter
 const theme = ref('light')
 
+// Fall time tracking
+const fallTime = ref<number | null>(null);
+const isMeasuring = ref(false);
+const showFallTime = ref(false);
+
+const fallTimeDisplay = computed(() => {
+  if (isMeasuring.value) {
+    return 'measuring...';
+  } else if (fallTime.value !== null) {
+    return `${fallTime.value.toFixed(3)}s`;
+  }
+  return '';
+});
+
 function toggleTheme(newTheme: string) {
   theme.value = newTheme
+}
+
+function handleFallTimeUpdate(data: { time: number | null, measuring: boolean }) {
+  fallTime.value = data.time;
+  isMeasuring.value = data.measuring;
+  showFallTime.value = true;
 }
 </script>
 
@@ -82,5 +108,19 @@ function toggleTheme(newTheme: string) {
   align-items: center;
   width: 100%;
   max-width: 640px;
+}
+
+.simulation-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.fall-time-indicator {
+  padding: 8px 12px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
 }
 </style>
