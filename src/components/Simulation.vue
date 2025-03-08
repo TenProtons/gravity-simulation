@@ -276,6 +276,13 @@ export default defineComponent({
       context.lineWidth = 2;
       context.stroke();
 
+      // Add unit label "m" at the top of the scale
+      context.font = '12px sans-serif';
+      context.textAlign = 'center';
+      context.textBaseline = 'bottom';
+      context.fillStyle = '#000';
+      context.fillText('m', xLine - 20, yTopPx - 5);
+
       // Tick marks every 0.2 m
       for (let m = 0; m <= SCALE_HEIGHT_METERS; m += 0.2) {
         const yTick = meterToPixel(m);
