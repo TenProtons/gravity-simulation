@@ -13,7 +13,8 @@ import {
   ref,
   onMounted,
   onUnmounted,
-  watch
+  watch,
+  computed
 } from 'vue';
 
 export default defineComponent({
@@ -26,6 +27,10 @@ export default defineComponent({
     ballDensity: {
       type: Number,
       required: true
+    },
+    scaleHeight: {
+      type: Number,
+      default: 1
     }
   },
   setup(props) {
@@ -42,17 +47,20 @@ export default defineComponent({
     const floorMargin = 20;
 
     // -- Scale definition --
-    // The floor is at 0 meters, and we go up to 2 meters.
-    const SCALE_HEIGHT_METERS = 2;
-    // Convert meters to pixels based on available vertical space.
-    // We'll reserve topMargin at the top and floorMargin at the bottom for some padding.
-    const pxPerMeter = (canvasHeight - topMargin - floorMargin) / SCALE_HEIGHT_METERS;
+    // The floor is at 0 meters, and we go up to the specified scale height.
+    // We'll compute pxPerMeter dynamically based on the scale height
+    const pxPerMeter = computed(() => {
+      return (canvasHeight - topMargin - floorMargin) / props.scaleHeight;
+    });
 
     // -- Ball definition --
     // Ball radius in meters; actual pixel size is derived from pxPerMeter.
-    const BALL_RADIUS_METERS = 0.1;
-    // We'll compute mass and drag based on ballDensity.
-    // The ball's vertical position y is in meters, with y=0 at the floor.
+    // We'll make the ball radius proportional to the scale height
+    const BALL_RADIUS_METERS = computed(() => {
+      // Keep a constant visual size (0.1m at scale height 1m)
+      return 0.1;
+    });
+    
     // We'll track velocity in m/s (positive = upward, negative = downward).
     let ball = {
       y: 0,    // starts on the floor (center of ball will be at radius height)
@@ -73,7 +81,7 @@ export default defineComponent({
     function meterToPixel(yMeter: number): number {
       // 0 meters is at the bottom (floorMargin from bottom),
       // so we invert by subtracting yMeter * pxPerMeter from the floor pixel line.
-      return canvasHeight - floorMargin - (yMeter * pxPerMeter);
+      return canvasHeight - floorMargin - (yMeter * pxPerMeter.value);
     }
 
     /*********************************
@@ -93,14 +101,14 @@ export default defineComponent({
     // Functions for mass and drag
     function computeMass(density: number): number {
       // Volume of a sphere: (4/3)πr³
-      const volume = (4 / 3) * Math.PI * Math.pow(BALL_RADIUS_METERS, 3);
+      const volume = (4 / 3) * Math.PI * Math.pow(BALL_RADIUS_METERS.value, 3);
       return density * volume;
     }
 
     function computeDragConstant(mass: number): number {
       // Drag formula: F = 0.5 * rho * Cd * A * v²
       // We'll store the portion (0.5 * rho * Cd * A / mass).
-      const crossSection = Math.PI * Math.pow(BALL_RADIUS_METERS, 2);
+      const crossSection = Math.PI * Math.pow(BALL_RADIUS_METERS.value, 2);
       return (0.5 * airDensity * Cd * crossSection) / mass;
     }
 
@@ -116,6 +124,24 @@ export default defineComponent({
         mass = computeMass(newDensity);
         dragConstant = computeDragConstant(mass);
         restitution = computeRestitution(newDensity);
+      }
+    );
+
+    // Add a watch for scaleHeight changes
+    watch(
+      () => props.scaleHeight,
+      () => {
+        // Recalculate physics parameters when scale height changes
+        mass = computeMass(props.ballDensity);
+        dragConstant = computeDragConstant(mass);
+        
+        // Make sure the ball is within the new scale bounds
+        if (ball.y > props.scaleHeight) {
+          ball.y = props.scaleHeight;
+        }
+        
+        // Redraw with new scale
+        draw();
       }
     );
 
@@ -145,10 +171,10 @@ export default defineComponent({
       // The ball is drawn horizontally at the center of the simulation area
       const ballX = scaleMargin + (canvasWidth - scaleMargin) / 2;
       // The ball's visual center Y in pixels includes the radius offset
-      const ballY = meterToPixel(ball.y + BALL_RADIUS_METERS);
+      const ballY = meterToPixel(ball.y + BALL_RADIUS_METERS.value);
 
       // Pixel radius
-      const radiusPx = BALL_RADIUS_METERS * pxPerMeter;
+      const radiusPx = BALL_RADIUS_METERS.value * pxPerMeter.value;
       const dx = mouseX - ballX;
       const dy = mouseY - ballY;
       return dx * dx + dy * dy <= radiusPx * radiusPx;
@@ -173,9 +199,9 @@ export default defineComponent({
       event.preventDefault();
       const pos = getMousePos(event);
       // Convert from pixel to meter, accounting for the radius offset
-      let newY = (canvasHeight - floorMargin - pos.y) / pxPerMeter - BALL_RADIUS_METERS;
+      let newY = (canvasHeight - floorMargin - pos.y) / pxPerMeter.value - BALL_RADIUS_METERS.value;
       // Clamp so the ball can't go below the floor or above scaleHeight
-      newY = Math.max(0, Math.min(newY, SCALE_HEIGHT_METERS));
+      newY = Math.max(0, Math.min(newY, props.scaleHeight));
       ball.y = newY;
       draw();
     }
@@ -243,8 +269,8 @@ export default defineComponent({
           }
         }
         // Also clamp if the ball goes above the top scale
-        if (ball.y > SCALE_HEIGHT_METERS) {
-          ball.y = SCALE_HEIGHT_METERS;
+        if (ball.y > props.scaleHeight) {
+          ball.y = props.scaleHeight;
           ball.v = 0; // just stop if user flung it too high
         }
       }
@@ -267,7 +293,7 @@ export default defineComponent({
       // Draw a vertical line from floor (y=0) to top (y=SCALE_HEIGHT_METERS).
       const xLine = scaleMargin - 5;
       const yFloorPx = meterToPixel(0);
-      const yTopPx = meterToPixel(SCALE_HEIGHT_METERS);
+      const yTopPx = meterToPixel(props.scaleHeight);
 
       context.beginPath();
       context.moveTo(xLine, yFloorPx);
@@ -284,7 +310,7 @@ export default defineComponent({
       context.fillText('m', xLine - 20, yTopPx - 5);
 
       // Tick marks every 0.2 m
-      for (let m = 0; m <= SCALE_HEIGHT_METERS; m += 0.2) {
+      for (let m = 0; m <= props.scaleHeight; m += getTickInterval(props.scaleHeight)) {
         const yTick = meterToPixel(m);
         context.beginPath();
         context.moveTo(xLine, yTick);
@@ -300,6 +326,25 @@ export default defineComponent({
       }
     }
 
+    function drawBallDiameter() {
+      if (!ctx.value) return;
+      const context = ctx.value;
+      
+      // Calculate the ball diameter in meters (2 * radius)
+      const ballDiameter = BALL_RADIUS_METERS.value * 2;
+      
+      // Display at the top of the canvas
+      context.font = '12px sans-serif';
+      context.textAlign = 'center';
+      context.textBaseline = 'top';
+      context.fillStyle = '#000';
+      context.fillText(
+        `Ball Ø: ${ballDiameter.toFixed(2)}m`, 
+        scaleMargin + (canvasWidth - scaleMargin) / 2, 
+        5
+      );
+    }
+
     function draw() {
       if (!ctx.value || !canvasRef.value) return;
       const context = ctx.value;
@@ -307,6 +352,9 @@ export default defineComponent({
 
       // Draw the scale on the left side
       drawScale();
+      
+      // Draw the ball diameter text
+      drawBallDiameter();
 
       // Draw the floor as a horizontal line in the simulation area
       const floorYpx = meterToPixel(0);
@@ -319,8 +367,8 @@ export default defineComponent({
 
       // Draw the ball - add radius to y position to lift center point
       const ballX = scaleMargin + (canvasWidth - scaleMargin) / 2;
-      const ballY = meterToPixel(ball.y + BALL_RADIUS_METERS); // Add radius here instead
-      const radiusPx = BALL_RADIUS_METERS * pxPerMeter;
+      const ballY = meterToPixel(ball.y + BALL_RADIUS_METERS.value); // Add radius here instead
+      const radiusPx = BALL_RADIUS_METERS.value * pxPerMeter.value;
 
       context.beginPath();
       context.arc(ballX, ballY, radiusPx, 0, 2 * Math.PI);
@@ -328,6 +376,15 @@ export default defineComponent({
       context.fill();
       context.strokeStyle = '#003f7f';
       context.stroke();
+    }
+
+    // Add a helper function to determine appropriate tick intervals based on scale height
+    function getTickInterval(height: number): number {
+      if (height <= 2) return 0.2;
+      if (height <= 5) return 0.5;
+      if (height <= 10) return 1;
+      if (height <= 20) return 2;
+      return 5;
     }
 
     /*********************************

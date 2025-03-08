@@ -7,6 +7,7 @@
         id="gravity"
         v-model.number="gravityModel"
         step="0.1"
+        min="0"
       />
     </div>
     <div class="input-group">
@@ -16,6 +17,18 @@
         id="density"
         v-model.number="densityModel"
         step="1"
+        min="0"
+      />
+    </div>
+    <div class="input-group">
+      <label for="scaleHeight">{{ $t('controls.scaleHeight') }}</label>
+      <input 
+        type="number"
+        id="scaleHeight"
+        v-model.number="scaleHeightModel"
+        step="0.1"
+        min="0.5"
+        max="50"
       />
     </div>
   </div>
@@ -34,9 +47,13 @@ export default defineComponent({
     density: {
       type: Number,
       required: true
+    },
+    scaleHeight: {
+      type: Number,
+      required: true
     }
   },
-  emits: ['update:gravity', 'update:density'],
+  emits: ['update:gravity', 'update:density', 'update:scaleHeight'],
   setup(props, { emit }) {
     const gravityModel = computed({
       get() {
@@ -56,9 +73,21 @@ export default defineComponent({
       }
     });
 
+    const scaleHeightModel = computed({
+      get() {
+        return props.scaleHeight;
+      },
+      set(newVal: number) {
+        // Clamp to max 50 meters
+        const clampedVal = Math.min(Math.max(0.5, newVal), 50);
+        emit('update:scaleHeight', clampedVal);
+      }
+    });
+
     return {
       gravityModel,
-      densityModel
+      densityModel,
+      scaleHeightModel
     };
   }
 });

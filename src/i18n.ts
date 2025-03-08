@@ -6,6 +6,7 @@ const messages = {
     controls: {
       gravity: "Gravity (m/s²)",
       density: "Ball Density (kg/m³)",
+      scaleHeight: "Scale Height (m)",
       start: "Start Simulation",
       reset: "Reset",
       language: "Language",
@@ -20,7 +21,8 @@ const messages = {
     appTitle: "Симуляція м'ячика",
     controls: {
       gravity: "Прискорення (м/с²)",
-      density: "Густина м'ячика (кг/м³)",
+      density: "Густина м'ячика (кг/m³)",
+      scaleHeight: "Висота шкали (м)",
       start: "Почати симуляцію",
       reset: "Скинути",
       language: "Мова",

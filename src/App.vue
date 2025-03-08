@@ -10,49 +10,34 @@
     <div class="main-content">
       <Controls 
         v-model:gravity="simulationGravity" 
-        v-model:density="simulationDensity" 
+        v-model:density="simulationDensity"
+        v-model:scaleHeight="simulationScaleHeight"
       />
       <Simulation 
         :gravity="simulationGravity" 
         :ballDensity="simulationDensity"
+        :scaleHeight="simulationScaleHeight"
       />
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from 'vue';
-import Controls from './components/Controls.vue';
-import Simulation from './components/Simulation.vue';
-import LanguageSwitcher from './components/LanguageSwitcher.vue';
-import ThemeSwitcher from './components/ThemeSwitcher.vue';
+<script lang="ts" setup>
+import { ref } from 'vue'
+import Controls from './components/Controls.vue'
+import Simulation from './components/Simulation.vue'
+import LanguageSwitcher from './components/LanguageSwitcher.vue'
+import ThemeSwitcher from './components/ThemeSwitcher.vue'
 
-export default defineComponent({
-  name: 'App',
-  components: {
-    Controls,
-    Simulation,
-    LanguageSwitcher,
-    ThemeSwitcher
-  },
-  setup() {
-    // Reactive values for gravity and density across the entire project.
-    const simulationGravity = ref(9.81);
-    const simulationDensity = ref(1000);
-    const theme = ref('light');
+// Reactive values for gravity and density across the entire project.
+const simulationGravity = ref(9.81)
+const simulationDensity = ref(1000)
+const simulationScaleHeight = ref(1) // Default to 1 meter
+const theme = ref('light')
 
-    function toggleTheme(newTheme: string) {
-      theme.value = newTheme;
-    }
-
-    return {
-      simulationGravity,
-      simulationDensity,
-      theme,
-      toggleTheme
-    };
-  }
-});
+function toggleTheme(newTheme: string) {
+  theme.value = newTheme
+}
 </script>
 
 <style scoped>
