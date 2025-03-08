@@ -21,6 +21,17 @@
       />
     </div>
     <div class="input-group">
+      <label for="ballDiameter">{{ $t('controls.ballDiameter') }}</label>
+      <input 
+        type="number"
+        id="ballDiameter"
+        v-model.number="ballDiameterModel"
+        step="0.01"
+        min="0.05"
+        max="0.5"
+      />
+    </div>
+    <div class="input-group">
       <label for="scaleHeight">{{ $t('controls.scaleHeight') }}</label>
       <input 
         type="number"
@@ -48,12 +59,16 @@ export default defineComponent({
       type: Number,
       required: true
     },
+    ballDiameter: {
+      type: Number,
+      required: true
+    },
     scaleHeight: {
       type: Number,
       required: true
     }
   },
-  emits: ['update:gravity', 'update:density', 'update:scaleHeight'],
+  emits: ['update:gravity', 'update:density', 'update:ballDiameter', 'update:scaleHeight'],
   setup(props, { emit }) {
     const gravityModel = computed({
       get() {
@@ -73,6 +88,17 @@ export default defineComponent({
       }
     });
 
+    const ballDiameterModel = computed({
+      get() {
+        return props.ballDiameter;
+      },
+      set(newVal: number) {
+        // Clamp between 5cm and 50cm
+        const clampedVal = Math.min(Math.max(0.05, newVal), 0.5);
+        emit('update:ballDiameter', clampedVal);
+      }
+    });
+
     const scaleHeightModel = computed({
       get() {
         return props.scaleHeight;
@@ -87,6 +113,7 @@ export default defineComponent({
     return {
       gravityModel,
       densityModel,
+      ballDiameterModel,
       scaleHeightModel
     };
   }

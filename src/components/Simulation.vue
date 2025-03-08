@@ -28,6 +28,10 @@ export default defineComponent({
       type: Number,
       required: true
     },
+    ballDiameter: {
+      type: Number,
+      default: 0.2
+    },
     scaleHeight: {
       type: Number,
       default: 1
@@ -57,8 +61,8 @@ export default defineComponent({
     // Ball radius in meters; actual pixel size is derived from pxPerMeter.
     // We'll make the ball radius proportional to the scale height
     const BALL_RADIUS_METERS = computed(() => {
-      // Keep a constant visual size (0.1m at scale height 1m)
-      return 0.1;
+      // Radius is half the diameter
+      return props.ballDiameter / 2;
     });
     
     // We'll track velocity in m/s (positive = upward, negative = downward).
@@ -153,6 +157,19 @@ export default defineComponent({
         }
         
         // Redraw with new scale
+        draw();
+      }
+    );
+
+    // Add a watch for ballDiameter changes
+    watch(
+      () => props.ballDiameter,
+      () => {
+        // Recalculate physics parameters when ball diameter changes
+        mass = computeMass(props.ballDensity);
+        dragConstant = computeDragConstant(mass);
+        
+        // Redraw with new ball size
         draw();
       }
     );
