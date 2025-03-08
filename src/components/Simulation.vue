@@ -40,7 +40,7 @@ export default defineComponent({
       default: 1
     }
   },
-  emits: ['fallTimeUpdate'],
+  emits: ['fallTimeUpdate', 'ballInfoUpdate'],
   setup(props, { emit }) {
     /*********************************
      *    1. CONSTANTS & VARIABLES   *
@@ -125,55 +125,65 @@ export default defineComponent({
     let dragConstant = computeDragConstant(mass);
     let restitution = computeRestitution(props.ballDensity);
 
-    // Watch for changes in ballDensity
+    // Add a function to emit ball info
+    function updateBallInfo() {
+      // Calculate the ball diameter in meters (2 * radius)
+      const ballDiameter = BALL_RADIUS_METERS.value * 2;
+      
+      // Calculate mass
+      const currentMass = computeMass(props.ballDensity);
+      
+      // Calculate the ball weight in kg (mass * gravity)
+      const ballWeight = currentMass * props.gravity / 9.81; // Convert to weight in kg
+      
+      emit('ballInfoUpdate', {
+        diameter: ballDiameter,
+        weight: ballWeight
+      });
+    }
+
+    // Update watch functions to emit ball info
     watch(
       () => props.ballDensity,
       (newDensity) => {
         mass = computeMass(newDensity);
         dragConstant = computeDragConstant(mass);
         restitution = computeRestitution(newDensity);
-        // Redraw to update the weight display
+        updateBallInfo();
         draw();
       }
     );
 
-    // Watch for changes in gravity
     watch(
       () => props.gravity,
       () => {
-        // Redraw with new gravity (which affects weight)
+        updateBallInfo();
         draw();
       },
-      { immediate: true } // Ensure it runs on initial mount
+      { immediate: true }
     );
 
-    // Add a watch for scaleHeight changes
+    watch(
+      () => props.ballDiameter,
+      () => {
+        mass = computeMass(props.ballDensity);
+        dragConstant = computeDragConstant(mass);
+        updateBallInfo();
+        draw();
+      }
+    );
+
     watch(
       () => props.scaleHeight,
       () => {
-        // Recalculate physics parameters when scale height changes
         mass = computeMass(props.ballDensity);
         dragConstant = computeDragConstant(mass);
         
-        // Make sure the ball is within the new scale bounds
         if (ball.y > props.scaleHeight) {
           ball.y = props.scaleHeight;
         }
         
-        // Redraw with new scale
-        draw();
-      }
-    );
-
-    // Add a watch for ballDiameter changes
-    watch(
-      () => props.ballDiameter,
-      () => {
-        // Recalculate physics parameters when ball diameter changes
-        mass = computeMass(props.ballDensity);
-        dragConstant = computeDragConstant(mass);
-        
-        // Redraw with new ball size
+        updateBallInfo();
         draw();
       }
     );
@@ -390,43 +400,6 @@ export default defineComponent({
       }
     }
 
-    function drawBallInfo() {
-      if (!ctx.value) return;
-      const context = ctx.value;
-      
-      // Calculate the ball diameter in meters (2 * radius)
-      const ballDiameter = BALL_RADIUS_METERS.value * 2;
-      
-      // Recalculate mass to ensure it's current
-      const currentMass = computeMass(props.ballDensity);
-      
-      // Calculate the ball weight in kg (mass * gravity)
-      const ballWeight = currentMass * props.gravity / 9.81; // Convert to weight in kg
-      
-      // Format the weight with appropriate units (g or kg)
-      let weightText;
-      if (ballWeight < 1) {
-        // Show in grams if less than 1kg
-        weightText = `${(ballWeight * 1000).toFixed(0)}g`;
-      } else {
-        // Show in kg with 2 decimal places
-        weightText = `${ballWeight.toFixed(2)}kg`;
-      }
-      
-      // Display at the top of the canvas
-      context.font = '12px sans-serif';
-      context.textAlign = 'center';
-      context.textBaseline = 'top';
-      context.fillStyle = '#000';
-      
-      // Display diameter and weight
-      context.fillText(
-        `Ball Ø: ${ballDiameter.toFixed(2)}m   Weight: ${weightText}`, 
-        scaleMargin + (canvasWidth - scaleMargin) / 2, 
-        5
-      );
-    }
-
     function draw() {
       if (!ctx.value || !canvasRef.value) return;
       const context = ctx.value;
@@ -434,9 +407,6 @@ export default defineComponent({
 
       // Draw the scale on the left side
       drawScale();
-      
-      // Draw the ball info (diameter and weight)
-      drawBallInfo();
 
       // Draw the floor as a horizontal line in the simulation area
       const floorYpx = meterToPixel(0);
@@ -449,7 +419,7 @@ export default defineComponent({
 
       // Draw the ball - add radius to y position to lift center point
       const ballX = scaleMargin + (canvasWidth - scaleMargin) / 2;
-      const ballY = meterToPixel(ball.y + BALL_RADIUS_METERS.value); // Add radius here instead
+      const ballY = meterToPixel(ball.y + BALL_RADIUS_METERS.value);
       const radiusPx = BALL_RADIUS_METERS.value * pxPerMeter.value;
 
       context.beginPath();
@@ -478,6 +448,7 @@ export default defineComponent({
         ctx.value = canvas.getContext('2d');
       }
       addEventListeners();
+      updateBallInfo();
       draw();
     });
 
