@@ -173,11 +173,15 @@ export default defineComponent({
       // The ball's visual center Y in pixels includes the radius offset
       const ballY = meterToPixel(ball.y + BALL_RADIUS_METERS.value);
 
-      // Pixel radius
+      // Pixel radius with minimum size for interaction
       const radiusPx = BALL_RADIUS_METERS.value * pxPerMeter.value;
+      
+      // Minimum interaction radius in pixels (15px or actual radius, whichever is larger)
+      const minInteractionRadius = Math.max(radiusPx, 15);
+      
       const dx = mouseX - ballX;
       const dy = mouseY - ballY;
-      return dx * dx + dy * dy <= radiusPx * radiusPx;
+      return dx * dx + dy * dy <= minInteractionRadius * minInteractionRadius;
     }
 
     function onMouseDown(event: MouseEvent | TouchEvent) {
