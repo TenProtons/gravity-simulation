@@ -102,15 +102,26 @@ export default defineComponent({
 
     // We'll compute restitution based on ballDensity vs. ironDensity
     function computeRestitution(density: number): number {
-      const ratio = Math.pow(density / ironDensity, 1 / 3);
+      // Ensure density is at least 0.001 kg/m³ (1 g/m³)
+      const safeDensity = Math.max(density, 0.001);
+      
+      // For extremely dense materials (like neutron stars), use a very low restitution
+      if (safeDensity > 1.0e5) {
+        return 0.01; // Very dense objects have very little bounce
+      }
+      
+      // For normal materials, calculate based on iron density
+      const ratio = Math.pow(Math.min(safeDensity, ironDensity) / ironDensity, 1 / 3);
       return Math.min(0.9, ratio);
     }
 
     // Functions for mass and drag
     function computeMass(density: number): number {
+      // Ensure density is at least a small positive value to avoid division by zero
+      const safeDensity = Math.max(density, 0.001);
       // Volume of a sphere: (4/3)πr³
       const volume = (4 / 3) * Math.PI * Math.pow(BALL_RADIUS_METERS.value, 3);
-      return density * volume;
+      return safeDensity * volume;
     }
 
     function computeDragConstant(mass: number): number {
@@ -309,12 +320,46 @@ export default defineComponent({
       lastTimestamp = timestamp;
 
       if (simulationRunning && !isDragging) {
-        // v < 0 => ball is moving downward
-        // Gravity is negative: a = -props.gravity + dragAcc
-        // Drag is opposite to velocity
-        const dragAcc = -dragConstant * ball.v * Math.abs(ball.v);
-        const acceleration = -props.gravity + dragAcc; // note the minus sign for gravity
+        // For very low density objects, terminal velocity should be much lower
+        
+        // Calculate the terminal velocity for this object
+        // Terminal velocity occurs when drag force equals gravitational force
+        // v_t = sqrt(2*m*g / (rho_air * A * Cd))
+        const crossSection = Math.PI * Math.pow(BALL_RADIUS_METERS.value, 2);
+        
+        // Ensure mass is positive but can be very small for light objects
+        const effectiveMass = Math.max(mass, 0.000001); // Prevent division by zero
+        
+        // Calculate terminal velocity (in m/s)
+        const terminalVelocity = Math.sqrt(
+          (2 * effectiveMass * props.gravity) / 
+          (airDensity * crossSection * Cd)
+        );
+        
+        // For very light objects, limit the acceleration to create a more realistic effect
+        // The lighter the object, the more quickly it approaches terminal velocity
+        const approachFactor = Math.min(10, 5 / effectiveMass); // Faster approach for lighter objects
+        
+        // Calculate current velocity as a percentage of terminal velocity
+        const velocityRatio = Math.abs(ball.v) / terminalVelocity;
+        
+        // Calculate acceleration, reducing it as we approach terminal velocity
+        let acceleration;
+        if (ball.v >= 0) { // Moving up or stationary
+          acceleration = -props.gravity; // Full gravity when moving up
+        } else { // Moving down
+          // Reduce acceleration as we approach terminal velocity
+          const dragEffect = Math.min(velocityRatio * approachFactor, 0.99);
+          acceleration = -props.gravity * (1 - dragEffect);
+        }
+        
         ball.v += acceleration * dt;
+        
+        // Clamp downward velocity to terminal velocity
+        if (ball.v < -terminalVelocity) {
+          ball.v = -terminalVelocity;
+        }
+        
         ball.y += ball.v * dt;
 
         // Bounce if the ball goes below the floor (y < 0).

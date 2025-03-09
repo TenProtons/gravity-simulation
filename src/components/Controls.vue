@@ -17,7 +17,8 @@
         id="density"
         v-model.number="densityModel"
         step="1"
-        min="0"
+        min="0.001"
+        max="1.0e17"
       />
     </div>
     <div class="input-group">
@@ -84,7 +85,9 @@ export default defineComponent({
         return props.density;
       },
       set(newVal: number) {
-        emit('update:density', newVal);
+        // Clamp between 1 g/m³ (0.001 kg/m³) and neutron star density (10^17 kg/m³)
+        const clampedVal = Math.min(Math.max(0.001, newVal), 1.0e17);
+        emit('update:density', clampedVal);
       }
     });
 
