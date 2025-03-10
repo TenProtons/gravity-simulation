@@ -3,9 +3,10 @@
     <div class="input-group">
       <label for="gravity">{{ $t('controls.gravity') }}</label>
       <input 
-        type="number"
+        type="text"
         id="gravity"
-        v-model.number="gravityModel"
+        :value="formatLocalNumber(gravity)"
+        @input="handleGravityInput"
         step="0.1"
         min="0"
       />
@@ -13,9 +14,10 @@
     <div class="input-group">
       <label for="density">{{ $t('controls.density') }}</label>
       <input 
-        type="number"
+        type="text"
         id="density"
-        v-model.number="densityModel"
+        :value="formatLocalNumber(density)"
+        @input="handleDensityInput"
         step="1"
         min="0.001"
         max="1.0e17"
@@ -24,9 +26,10 @@
     <div class="input-group">
       <label for="ballDiameter">{{ $t('controls.ballDiameter') }}</label>
       <input 
-        type="number"
+        type="text"
         id="ballDiameter"
-        v-model.number="ballDiameterModel"
+        :value="formatLocalNumber(ballDiameter)"
+        @input="handleBallDiameterInput"
         step="0.01"
         min="0.05"
         max="0.5"
@@ -35,9 +38,10 @@
     <div class="input-group">
       <label for="scaleHeight">{{ $t('controls.scaleHeight') }}</label>
       <input 
-        type="number"
+        type="text"
         id="scaleHeight"
-        v-model.number="scaleHeightModel"
+        :value="formatLocalNumber(scaleHeight)"
+        @input="handleScaleHeightInput"
         step="0.1"
         min="0.5"
         max="50"
@@ -71,54 +75,63 @@ export default defineComponent({
   },
   emits: ['update:gravity', 'update:density', 'update:ballDiameter', 'update:scaleHeight'],
   setup(props, { emit }) {
-    const gravityModel = computed({
-      get() {
-        return props.gravity;
-      },
-      set(newVal: number) {
-        emit('update:gravity', newVal);
-      }
-    });
+    // Format number according to locale (allows comma as decimal separator)
+    function formatLocalNumber(value: number): string {
+      return value.toString();
+    }
 
-    const densityModel = computed({
-      get() {
-        return props.density;
-      },
-      set(newVal: number) {
-        // Hydrogen at 20°C has density of approximately 0.0899 kg/m³
-        // Neutron star density is approximately 10^17 kg/m³
-        const clampedVal = Math.min(Math.max(0.0899, newVal), 1.0e17);
+    // Parse input value with support for comma decimal separator
+    function parseLocalNumber(value: string): number {
+      // Replace comma with period for decimal
+      const normalizedValue = value.replace(',', '.');
+      // Convert to number
+      return parseFloat(normalizedValue);
+    }
+
+    function handleGravityInput(event: Event): void {
+      const input = event.target as HTMLInputElement;
+      const parsedValue = parseLocalNumber(input.value);
+      if (!isNaN(parsedValue)) {
+        emit('update:gravity', parsedValue);
+      }
+    }
+
+    function handleDensityInput(event: Event): void {
+      const input = event.target as HTMLInputElement;
+      const parsedValue = parseLocalNumber(input.value);
+      if (!isNaN(parsedValue)) {
+        // Clamp between hydrogen density and neutron star density
+        const clampedVal = Math.min(Math.max(0.0899, parsedValue), 1.0e17);
         emit('update:density', clampedVal);
       }
-    });
+    }
 
-    const ballDiameterModel = computed({
-      get() {
-        return props.ballDiameter;
-      },
-      set(newVal: number) {
+    function handleBallDiameterInput(event: Event): void {
+      const input = event.target as HTMLInputElement;
+      const parsedValue = parseLocalNumber(input.value);
+      if (!isNaN(parsedValue)) {
         // Clamp between 5cm and 50cm
-        const clampedVal = Math.min(Math.max(0.05, newVal), 0.5);
+        const clampedVal = Math.min(Math.max(0.05, parsedValue), 0.5);
         emit('update:ballDiameter', clampedVal);
       }
-    });
+    }
 
-    const scaleHeightModel = computed({
-      get() {
-        return props.scaleHeight;
-      },
-      set(newVal: number) {
+    function handleScaleHeightInput(event: Event): void {
+      const input = event.target as HTMLInputElement;
+      const parsedValue = parseLocalNumber(input.value);
+      if (!isNaN(parsedValue)) {
         // Clamp to max 50 meters
-        const clampedVal = Math.min(Math.max(0.5, newVal), 50);
+        const clampedVal = Math.min(Math.max(0.5, parsedValue), 50);
         emit('update:scaleHeight', clampedVal);
       }
-    });
+    }
 
     return {
-      gravityModel,
-      densityModel,
-      ballDiameterModel,
-      scaleHeightModel
+      formatLocalNumber,
+      handleGravityInput,
+      handleDensityInput,
+      handleBallDiameterInput,
+      handleScaleHeightInput
     };
   }
 });
