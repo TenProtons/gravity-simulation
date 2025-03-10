@@ -16,8 +16,7 @@ import {
   onMounted,
   onUnmounted,
   watch,
-  computed,
-  defineEmits
+  computed
 } from 'vue';
 
 export default defineComponent({
@@ -461,6 +460,19 @@ export default defineComponent({
       context.strokeStyle = '#000';
       context.lineWidth = 2;
       context.stroke();
+
+      // Draw the ball's current height as a horizontal reference line
+      if (ball.y > 0) {
+        const heightLineY = meterToPixel(ball.y);
+        context.beginPath();
+        context.moveTo(scaleMargin - 15, heightLineY);
+        context.lineTo(scaleMargin + (canvasWidth - scaleMargin) / 2, heightLineY);
+        context.strokeStyle = '#aaa';
+        context.lineWidth = 1;
+        context.setLineDash([3, 3]); // Dashed line
+        context.stroke();
+        context.setLineDash([]); // Reset to solid line
+      }
 
       // Draw the ball - add radius to y position to lift center point
       const ballX = scaleMargin + (canvasWidth - scaleMargin) / 2;
