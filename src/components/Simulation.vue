@@ -30,6 +30,10 @@ export default defineComponent({
       type: Number,
       required: true
     },
+    elasticity: {
+      type: Number,
+      required: true
+    },
     ballDiameter: {
       type: Number,
       default: 0.2
@@ -99,20 +103,8 @@ export default defineComponent({
     const Cd = 0.47;        // drag coefficient for a sphere
     const ironDensity = 7870; // kg/m³
 
-    // We'll compute restitution based on ballDensity vs. ironDensity
-    function computeRestitution(density: number): number {
-      // Ensure density is at least 0.001 kg/m³ (1 g/m³)
-      const safeDensity = Math.max(density, 0.001);
-      
-      // For extremely dense materials (like neutron stars), use a very low restitution
-      if (safeDensity > 1.0e5) {
-        return 0.01; // Very dense objects have very little bounce
-      }
-      
-      // For normal materials, calculate based on iron density
-      const ratio = Math.pow(Math.min(safeDensity, ironDensity) / ironDensity, 1 / 3);
-      return Math.min(0.9, ratio);
-    }
+    // Use elasticity directly from props
+    let restitution = props.elasticity;
 
     // Functions for mass and drag
     function computeMass(density: number): number {
@@ -130,11 +122,10 @@ export default defineComponent({
       return (0.5 * airDensity * Cd * crossSection) / mass;
     }
 
-    // We'll keep these updated when ballDensity changes.
+    // We'll keep these updated when properties change
     let mass = computeMass(props.ballDensity);
     let dragConstant = computeDragConstant(mass);
-    let restitution = computeRestitution(props.ballDensity);
-
+    
     // Add a function to emit ball info
     function updateBallInfo() {
       // Calculate the ball diameter in meters (2 * radius)
@@ -152,13 +143,12 @@ export default defineComponent({
       });
     }
 
-    // Update watch functions to emit ball info
+    // Update watch functions
     watch(
       () => props.ballDensity,
       (newDensity) => {
         mass = computeMass(newDensity);
         dragConstant = computeDragConstant(mass);
-        restitution = computeRestitution(newDensity);
         updateBallInfo();
         draw();
       }
@@ -195,6 +185,13 @@ export default defineComponent({
         
         updateBallInfo();
         draw();
+      }
+    );
+
+    watch(
+      () => props.elasticity,
+      (newElasticity) => {
+        restitution = newElasticity;
       }
     );
 

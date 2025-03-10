@@ -11,6 +11,7 @@
       <Controls 
         v-model:gravity="simulationGravity" 
         v-model:density="simulationDensity"
+        v-model:elasticity="simulationElasticity"
         v-model:ballDiameter="simulationBallDiameter"
         v-model:scaleHeight="simulationScaleHeight"
       />
@@ -18,6 +19,7 @@
         <Simulation 
           :gravity="simulationGravity" 
           :ballDensity="simulationDensity"
+          :elasticity="simulationElasticity"
           :ballDiameter="simulationBallDiameter"
           :scaleHeight="simulationScaleHeight"
           @fallTimeUpdate="handleFallTimeUpdate"
@@ -48,7 +50,8 @@ import ThemeSwitcher from './components/ThemeSwitcher.vue'
 
 // Reactive values for the simulation
 const simulationGravity = ref(9.81)
-const simulationDensity = ref(1000)
+const simulationDensity = ref(1100) // Default to rubber
+const simulationElasticity = ref(0.85) // Default to rubber
 const simulationBallDiameter = ref(0.2) // Default to 20cm diameter
 const simulationScaleHeight = ref(1) // Default to 1 meter
 const theme = ref('light')
