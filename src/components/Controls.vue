@@ -86,7 +86,6 @@ const materialsList = {
   steel: { name: 'Steel', density: 7850, elasticity: 0.6 },
   rubber: { name: 'Rubber', density: 1100, elasticity: 0.85 },
   foamRubber: { name: 'Foam Rubber', density: 85, elasticity: 0.25 },
-  gasBall: { name: 'Low-Density Gas Ball', density: 1.2, elasticity: 0.4 },
   wood: { name: 'Wood', density: 700, elasticity: 0.6 },
   glass: { name: 'Glass', density: 2500, elasticity: 0.65 },
   osmium: { name: 'Osmium', density: 22590, elasticity: 0.2 },
