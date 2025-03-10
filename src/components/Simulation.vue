@@ -267,7 +267,7 @@ export default defineComponent({
       draw();
     }
 
-    function onMouseUp(event: MouseEvent | TouchEvent) {
+    function onMouseUp() {
       if (isDragging) {
         isDragging = false;
         simulationRunning = true;
@@ -319,49 +319,54 @@ export default defineComponent({
       lastTimestamp = timestamp;
 
       if (simulationRunning && !isDragging) {
-        // For very low density objects, terminal velocity should be much lower
+        // Volume of the ball (in m³)
+        const volume = (4 / 3) * Math.PI * Math.pow(BALL_RADIUS_METERS.value, 3);
         
-        // Calculate the terminal velocity for this object
-        // Terminal velocity occurs when drag force equals gravitational force
-        // v_t = sqrt(2*m*g / (rho_air * A * Cd))
+        // Calculate buoyancy force (Archimedes' principle)
+        // Buoyancy = density of air * volume * gravity (upward force)
+        const buoyancyForce = airDensity * volume * props.gravity;
+        
+        // Calculate gravitational force
+        // Weight = mass * gravity (downward force)
+        const gravityForce = mass * props.gravity;
+        
+        // Net force from gravity and buoyancy (positive = upward, negative = downward)
+        const netForce = buoyancyForce - gravityForce;
+        
+        // Convert to acceleration (F = ma)
+        const buoyancyAcceleration = netForce / mass;
+        
+        // Calculate cross-sectional area for drag
         const crossSection = Math.PI * Math.pow(BALL_RADIUS_METERS.value, 2);
         
-        // Ensure mass is positive but can be very small for light objects
-        const effectiveMass = Math.max(mass, 0.000001); // Prevent division by zero
+        // Calculate drag (direction depends on velocity)
+        // Drag force = 0.5 * air density * drag coefficient * cross section * v²
+        const dragForce = 0.5 * airDensity * Cd * crossSection * ball.v * Math.abs(ball.v);
+        const dragAcceleration = -dragForce / mass; // Negative because drag opposes motion
         
-        // Calculate terminal velocity (in m/s)
-        const terminalVelocity = Math.sqrt(
-          (2 * effectiveMass * props.gravity) / 
-          (airDensity * crossSection * Cd)
-        );
+        // Total acceleration
+        const acceleration = buoyancyAcceleration + dragAcceleration;
         
-        // For very light objects, limit the acceleration to create a more realistic effect
-        // The lighter the object, the more quickly it approaches terminal velocity
-        const approachFactor = Math.min(10, 5 / effectiveMass); // Faster approach for lighter objects
-        
-        // Calculate current velocity as a percentage of terminal velocity
-        const velocityRatio = Math.abs(ball.v) / terminalVelocity;
-        
-        // Calculate acceleration, reducing it as we approach terminal velocity
-        let acceleration;
-        if (ball.v >= 0) { // Moving up or stationary
-          acceleration = -props.gravity; // Full gravity when moving up
-        } else { // Moving down
-          // Reduce acceleration as we approach terminal velocity
-          const dragEffect = Math.min(velocityRatio * approachFactor, 0.99);
-          acceleration = -props.gravity * (1 - dragEffect);
-        }
-        
+        // Update velocity and position
         ball.v += acceleration * dt;
         
-        // Clamp downward velocity to terminal velocity
-        if (ball.v < -terminalVelocity) {
-          ball.v = -terminalVelocity;
+        // Calculate terminal velocity for display/clamping
+        // When buoyancy > gravity, terminal velocity is upward (positive)
+        const terminalDirectionSign = (props.ballDensity < airDensity) ? 1 : -1;
+        const terminalVelocity = terminalDirectionSign * Math.sqrt(
+          Math.abs(netForce) / (0.5 * airDensity * Cd * crossSection)
+        );
+        
+        // Clamp velocity to terminal velocity if needed
+        if (terminalDirectionSign > 0 && ball.v > terminalVelocity) {
+          ball.v = terminalVelocity; // Clamp upward velocity
+        } else if (terminalDirectionSign < 0 && ball.v < terminalVelocity) {
+          ball.v = terminalVelocity; // Clamp downward velocity
         }
         
         ball.y += ball.v * dt;
 
-        // Bounce if the ball goes below the floor (y < 0).
+        // Handle collisions with ground and ceiling
         if (ball.y < 0) {
           ball.y = 0;
           ball.v = -restitution * ball.v;
@@ -369,20 +374,26 @@ export default defineComponent({
           // Record fall time on first contact with ground
           if (fallStartTime !== null && fallEndTime === null) {
             fallEndTime = performance.now();
-            const fallDuration = (fallEndTime - fallStartTime) / 1000; // Convert to seconds
+            const fallDuration = (fallEndTime - fallStartTime) / 1000;
             emit('fallTimeUpdate', { time: fallDuration, measuring: false });
           }
           
-          // If velocity is tiny, stop.
           if (Math.abs(ball.v) < 0.05) {
             ball.v = 0;
             simulationRunning = false;
           }
         }
-        // Also clamp if the ball goes above the top scale
+        
+        // For buoyant objects, they may hit the ceiling
         if (ball.y > props.scaleHeight) {
           ball.y = props.scaleHeight;
-          ball.v = 0; // just stop if user flung it too high
+          ball.v = -restitution * ball.v; // Bounce off ceiling
+          
+          // If very slow, just stop at the ceiling
+          if (Math.abs(ball.v) < 0.05) {
+            ball.v = 0;
+            simulationRunning = false;
+          }
         }
 
         // Update fall time continuously during the fall

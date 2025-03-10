@@ -85,8 +85,9 @@ export default defineComponent({
         return props.density;
       },
       set(newVal: number) {
-        // Clamp between 1 g/m³ (0.001 kg/m³) and neutron star density (10^17 kg/m³)
-        const clampedVal = Math.min(Math.max(0.001, newVal), 1.0e17);
+        // Hydrogen at 20°C has density of approximately 0.0899 kg/m³
+        // Neutron star density is approximately 10^17 kg/m³
+        const clampedVal = Math.min(Math.max(0.0899, newVal), 1.0e17);
         emit('update:density', clampedVal);
       }
     });
