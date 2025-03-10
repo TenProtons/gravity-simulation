@@ -74,12 +74,15 @@ const ballDiameterDisplay = computed(() => {
 });
 
 const ballWeightDisplay = computed(() => {
-  if (ballWeight.value < 1) {
-    // Show in grams if less than 1kg
-    return `${(ballWeight.value * 1000).toFixed(0)}g`;
+  // Make sure we have at least a minimum weight value to display
+  const minDisplayWeight = Math.max(ballWeight.value, 0.0001);
+  
+  if (minDisplayWeight < 1) {
+    // Show in grams if less than 1kg, with 1 decimal place
+    return `${(minDisplayWeight * 1000).toFixed(1)}g`;
   } else {
-    // Show in kg with 2 decimal places
-    return `${ballWeight.value.toFixed(2)}kg`;
+    // Show in kg with 1 decimal place
+    return `${minDisplayWeight.toFixed(1)}kg`;
   }
 });
 
