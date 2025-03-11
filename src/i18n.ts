@@ -13,7 +13,9 @@ const messages = {
       start: "Start Simulation",
       reset: "Reset",
       language: "Language",
-      theme: "Theme"
+      theme: "Theme",
+      vacuum: "Vacuum Mode",
+      vacuumInfo: "Removes air resistance"
     },
     themes: {
       light: "Light",
@@ -32,7 +34,9 @@ const messages = {
       start: "Почати симуляцію",
       reset: "Скинути",
       language: "Мова",
-      theme: "Тема"
+      theme: "Тема",
+      vacuum: "Режим вакууму",
+      vacuumInfo: "Видаляє опір повітря"
     },
     themes: {
       light: "Світла",

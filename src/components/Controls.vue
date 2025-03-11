@@ -73,6 +73,14 @@
         max="50"
       />
     </div>
+    
+    <div class="toggle-group">
+      <label class="toggle-label">
+        <input type="checkbox" v-model="vacuumMode" @change="handleVacuumToggle" />
+        <span class="toggle-text">{{ $t('controls.vacuum') }}</span>
+      </label>
+      <div class="toggle-info">{{ $t('controls.vacuumInfo') }}</div>
+    </div>
   </div>
 </template>
 
@@ -115,12 +123,17 @@ export default defineComponent({
     scaleHeight: {
       type: Number,
       required: true
+    },
+    vacuum: {
+      type: Boolean,
+      default: false
     }
   },
-  emits: ['update:gravity', 'update:density', 'update:elasticity', 'update:ballDiameter', 'update:scaleHeight'],
+  emits: ['update:gravity', 'update:density', 'update:elasticity', 'update:ballDiameter', 'update:scaleHeight', 'update:vacuum'],
   setup(props, { emit }) {
     const materials = materialsList;
     const selectedMaterial = ref('rubber'); // Default to rubber
+    const vacuumMode = ref(props.vacuum);
 
     // Format number according to locale (allows comma as decimal separator)
     function formatLocalNumber(value: number): string {
@@ -194,6 +207,10 @@ export default defineComponent({
       }
     }
 
+    function handleVacuumToggle() {
+      emit('update:vacuum', vacuumMode.value);
+    }
+
     return {
       materials,
       selectedMaterial,
@@ -203,7 +220,9 @@ export default defineComponent({
       handleDensityInput,
       handleElasticityInput,
       handleBallDiameterInput,
-      handleScaleHeightInput
+      handleScaleHeightInput,
+      vacuumMode,
+      handleVacuumToggle
     };
   }
 });
@@ -258,5 +277,34 @@ input {
   padding: 8px;
   border-radius: 4px;
   border: 1px solid #ccc;
+}
+
+.toggle-group {
+  display: flex;
+  flex-direction: column;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  
+  input[type="checkbox"] {
+    margin-right: 8px;
+  }
+  
+  .toggle-text {
+    font-weight: bold;
+  }
+}
+
+.toggle-info {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #666;
 }
 </style>

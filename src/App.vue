@@ -14,6 +14,7 @@
         v-model:elasticity="simulationElasticity"
         v-model:ballDiameter="simulationBallDiameter"
         v-model:scaleHeight="simulationScaleHeight"
+        v-model:vacuum="simulationVacuum"
       />
       <div class="simulation-section">
         <Simulation 
@@ -22,6 +23,7 @@
           :elasticity="simulationElasticity"
           :ballDiameter="simulationBallDiameter"
           :scaleHeight="simulationScaleHeight"
+          :vacuum="simulationVacuum"
           @fallTimeUpdate="handleFallTimeUpdate"
           @ballInfoUpdate="handleBallInfoUpdate"
         />
@@ -54,6 +56,7 @@ const simulationDensity = ref(1100) // Default to rubber
 const simulationElasticity = ref(0.85) // Default to rubber
 const simulationBallDiameter = ref(0.2) // Default to 20cm diameter
 const simulationScaleHeight = ref(1) // Default to 1 meter
+const simulationVacuum = ref(false) // Default to normal atmosphere
 const theme = ref('light')
 
 // Fall time tracking

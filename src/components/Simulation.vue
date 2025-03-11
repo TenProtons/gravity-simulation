@@ -41,6 +41,10 @@ export default defineComponent({
     scaleHeight: {
       type: Number,
       default: 1
+    },
+    vacuum: {
+      type: Boolean,
+      default: false
     }
   },
   emits: ['fallTimeUpdate', 'ballInfoUpdate'],
@@ -134,8 +138,8 @@ export default defineComponent({
       // Calculate mass
       const currentMass = computeMass(props.ballDensity);
       
-      // Calculate the ball weight in kg (mass * gravity)
-      const ballWeight = currentMass * props.gravity / 9.81; // Convert to weight in kg
+      // Calculate the ball weight (in vacuum or atmosphere)
+      const ballWeight = currentMass * props.gravity / 9.81;
       
       emit('ballInfoUpdate', {
         diameter: ballDiameter,
@@ -192,6 +196,14 @@ export default defineComponent({
       () => props.elasticity,
       (newElasticity) => {
         restitution = newElasticity;
+      }
+    );
+
+    watch(
+      () => props.vacuum,
+      () => {
+        updateBallInfo();
+        draw();
       }
     );
 
@@ -316,51 +328,66 @@ export default defineComponent({
       lastTimestamp = timestamp;
 
       if (simulationRunning && !isDragging) {
-        // Volume of the ball (in m³)
-        const volume = (4 / 3) * Math.PI * Math.pow(BALL_RADIUS_METERS.value, 3);
+        let acceleration;
         
-        // Calculate buoyancy force (Archimedes' principle)
-        // Buoyancy = density of air * volume * gravity (upward force)
-        const buoyancyForce = airDensity * volume * props.gravity;
-        
-        // Calculate gravitational force
-        // Weight = mass * gravity (downward force)
-        const gravityForce = mass * props.gravity;
-        
-        // Net force from gravity and buoyancy (positive = upward, negative = downward)
-        const netForce = buoyancyForce - gravityForce;
-        
-        // Convert to acceleration (F = ma)
-        const buoyancyAcceleration = netForce / mass;
-        
-        // Calculate cross-sectional area for drag
-        const crossSection = Math.PI * Math.pow(BALL_RADIUS_METERS.value, 2);
-        
-        // Calculate drag (direction depends on velocity)
-        // Drag force = 0.5 * air density * drag coefficient * cross section * v²
-        const dragForce = 0.5 * airDensity * Cd * crossSection * ball.v * Math.abs(ball.v);
-        const dragAcceleration = -dragForce / mass; // Negative because drag opposes motion
-        
-        // Total acceleration
-        const acceleration = buoyancyAcceleration + dragAcceleration;
-        
-        // Update velocity and position
-        ball.v += acceleration * dt;
-        
-        // Calculate terminal velocity for display/clamping
-        // When buoyancy > gravity, terminal velocity is upward (positive)
-        const terminalDirectionSign = (props.ballDensity < airDensity) ? 1 : -1;
-        const terminalVelocity = terminalDirectionSign * Math.sqrt(
-          Math.abs(netForce) / (0.5 * airDensity * Cd * crossSection)
-        );
-        
-        // Clamp velocity to terminal velocity if needed
-        if (terminalDirectionSign > 0 && ball.v > terminalVelocity) {
-          ball.v = terminalVelocity; // Clamp upward velocity
-        } else if (terminalDirectionSign < 0 && ball.v < terminalVelocity) {
-          ball.v = terminalVelocity; // Clamp downward velocity
+        if (props.vacuum) {
+          // In vacuum: only gravity affects the ball, no air resistance or buoyancy
+          acceleration = -props.gravity; // Negative because gravity pulls down
+        } else {
+          // In atmosphere: calculate with air resistance and buoyancy
+          // Volume of the ball (in m³)
+          const volume = (4 / 3) * Math.PI * Math.pow(BALL_RADIUS_METERS.value, 3);
+          
+          // Calculate buoyancy force (Archimedes' principle)
+          const buoyancyForce = airDensity * volume * props.gravity;
+          
+          // Calculate gravitational force
+          const gravityForce = mass * props.gravity;
+          
+          // Net force from gravity and buoyancy
+          const netForce = buoyancyForce - gravityForce;
+          
+          // Convert to acceleration
+          const buoyancyAcceleration = netForce / mass;
+          
+          // Calculate cross-sectional area for drag
+          const crossSection = Math.PI * Math.pow(BALL_RADIUS_METERS.value, 2);
+          
+          // Calculate drag
+          const dragForce = 0.5 * airDensity * Cd * crossSection * ball.v * Math.abs(ball.v);
+          const dragAcceleration = -dragForce / mass;
+          
+          // Total acceleration
+          acceleration = buoyancyAcceleration + dragAcceleration;
         }
         
+        // Update velocity
+        ball.v += acceleration * dt;
+        
+        // Apply terminal velocity in atmosphere only
+        if (!props.vacuum) {
+          // Calculate terminal velocity
+          const volume = (4 / 3) * Math.PI * Math.pow(BALL_RADIUS_METERS.value, 3);
+          const buoyancyForce = airDensity * volume * props.gravity;
+          const gravityForce = mass * props.gravity;
+          const netForce = buoyancyForce - gravityForce;
+          const crossSection = Math.PI * Math.pow(BALL_RADIUS_METERS.value, 2);
+          
+          // Terminal velocity direction depends on buoyancy vs gravity
+          const terminalDirectionSign = (props.ballDensity < airDensity) ? 1 : -1;
+          const terminalVelocity = terminalDirectionSign * Math.sqrt(
+            Math.abs(netForce) / (0.5 * airDensity * Cd * crossSection)
+          );
+          
+          // Clamp velocity to terminal velocity
+          if (terminalDirectionSign > 0 && ball.v > terminalVelocity) {
+            ball.v = terminalVelocity;
+          } else if (terminalDirectionSign < 0 && ball.v < terminalVelocity) {
+            ball.v = terminalVelocity;
+          }
+        }
+        
+        // Update position
         ball.y += ball.v * dt;
 
         // Handle collisions with ground and ceiling
@@ -381,19 +408,18 @@ export default defineComponent({
           }
         }
         
-        // For buoyant objects, they may hit the ceiling
+        // Objects can still hit the ceiling in vacuum if thrown up
         if (ball.y > props.scaleHeight) {
           ball.y = props.scaleHeight;
-          ball.v = -restitution * ball.v; // Bounce off ceiling
+          ball.v = -restitution * ball.v;
           
-          // If very slow, just stop at the ceiling
           if (Math.abs(ball.v) < 0.05) {
             ball.v = 0;
             simulationRunning = false;
           }
         }
 
-        // Update fall time continuously during the fall
+        // Update fall time continuously
         if (fallStartTime !== null && fallEndTime === null) {
           const currentTime = performance.now();
           const currentDuration = (currentTime - fallStartTime) / 1000;
