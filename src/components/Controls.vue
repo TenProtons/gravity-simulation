@@ -134,9 +134,8 @@ export default defineComponent({
       // Convert to number
       return parseFloat(normalizedValue);
     }
-
     function handleMaterialChange() {
-      const material = materials[selectedMaterial.value];
+      const material = materials[selectedMaterial.value as keyof typeof materials];
       if (material) {
         emit('update:density', material.density);
         emit('update:elasticity', material.elasticity);
