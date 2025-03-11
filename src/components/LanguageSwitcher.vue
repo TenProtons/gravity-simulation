@@ -39,21 +39,22 @@ function toggleLanguage() {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import '../assets/variables.scss';
 
 .language-toggle {
   background-color: transparent;
-  border: $border-width solid $color-gray;
+  border: $border-width solid var(--input-border-color);
   border-radius: $border-radius-sm;
   padding: $spacing-xs $spacing-sm;
   cursor: pointer;
   font-weight: $font-weight-bold;
   min-width: 40px;
-  transition: background-color 0.2s ease;
+  color: var(--text-color);
+  transition: all 0.2s ease;
   
   &:hover {
-    background-color: $color-gray-light;
+    background-color: var(--gray-light-color);
   }
 }
 </style>

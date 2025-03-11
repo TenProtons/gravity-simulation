@@ -574,8 +574,8 @@ export default defineComponent({
 }
 
 .simulation-canvas {
-  border: $border-width solid $color-gray;
+  border: $border-width solid var(--gray-color);
   touch-action: none; /* helps with mobile dragging */
-  background: $color-white;
+  background: var(--white-color);
 }
 </style>

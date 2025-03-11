@@ -1,17 +1,54 @@
 @import './variables.scss';
 
+/* Define default variables for light mode */
 :root {
-  --color-primary: #{$color-primary};
-  --color-primary-dark: #{$color-primary-dark};
-  --color-black: #{$color-black};
-  --color-white: #{$color-white};
-  --color-background-light: #{$color-background-light};
-  --color-background-dark: #{$color-background-dark};
-  --color-text-light: #{$color-text-light};
-  --color-text-dark: #{$color-text-dark};
-  --color-gray-light: #{$color-gray-light};
-  --color-gray: #{$color-gray};
-  --color-gray-dark: #{$color-gray-dark};
+  /* Colors */
+  --background-color: #ffffff;
+  --text-color: #000000;
+  --primary-color: #007bff;
+  --primary-dark-color: #003f7f;
+  --gray-light-color: #f0f0f0;
+  --gray-color: #ccc;
+  --gray-dark-color: #666;
+  --white-color: #fff;
+  
+  /* Form elements */
+  --input-background: #ffffff;
+  --input-text-color: #000000;
+  --input-border-color: #ccc;
+  
+  /* UI elements */
+  --indicator-background: #f0f0f0;
+  --indicator-text-color: #000000;
+  --toggle-group-border-color: #ccc;
+  --toggle-info-color: #666;
+  --properties-group-border-color: #ccc;
+}
+
+/* Dark mode variables */
+.dark {
+  --background-color: #222;
+  --text-color: #ffffff;
+  --gray-light-color: #444;
+  --gray-color: #777;
+  --gray-dark-color: #aaa;
+  
+  /* Form elements */
+  --input-background: #333;
+  --input-text-color: #ffffff;
+  --input-border-color: #555;
+  
+  /* UI elements */
+  --indicator-background: #444;
+  --indicator-text-color: #ffffff;
+  --toggle-group-border-color: #555;
+  --toggle-info-color: #aaa;
+  --properties-group-border-color: #555;
+}
+
+/* Light mode - use default root values */
+.light {
+  /* Variables are already defined in :root */
 }
 
 /* Apply Roboto font throughout the application */
@@ -26,14 +63,42 @@ h1, h2, h3, h4, h5, h6 {
   box-sizing: border-box;
 }
 
-/* Restore padding for form elements */
+/* Base styles */
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+/* Form elements styles */
 input, 
-select {
+select,
+textarea {
   padding: $spacing-sm;
   border-radius: $border-radius-sm;
-  border: $border-width solid $color-gray;
+  border: $border-width solid var(--input-border-color);
+  background-color: var(--input-background);
+  color: var(--input-text-color);
+}
+
+button {
+  cursor: pointer;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-weight: $font-weight-bold;
+  color: var(--text-color);
+}
+
+/* Common UI elements styling */
+.indicator {
+  background-color: var(--indicator-background);
+  color: var(--indicator-text-color);
+}
+
+.toggle-group, .properties-group {
+  border-color: var(--toggle-group-border-color);
+}
+
+.toggle-info {
+  color: var(--toggle-info-color);
 } 

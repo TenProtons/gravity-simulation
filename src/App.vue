@@ -116,43 +116,8 @@ function toggleTheme(newTheme: string) {
   align-items: center;
   min-height: 100vh;
   padding: $spacing-md;
-}
-
-/* Light theme */
-.light {
-  background-color: $color-background-light;
-  color: $color-text-light;
-  
-  input, select, textarea {
-    background-color: $color-white;
-    color: $color-text-light;
-    border-color: $color-gray;
-  }
-}
-
-/* Dark theme */
-.dark {
-  background-color: $color-background-dark;
-  color: $color-text-dark;
-  
-  input, select, textarea {
-    background-color: #333;
-    color: $color-text-dark;
-    border-color: #555;
-  }
-  
-  .indicator {
-    background-color: #444;
-    color: $color-text-dark;
-  }
-  
-  .toggle-group, .properties-group {
-    border-color: #555;
-  }
-  
-  .toggle-info {
-    color: #aaa;
-  }
+  background-color: var(--background-color);
+  color: var(--text-color);
 }
 
 .header {
@@ -189,10 +154,11 @@ function toggleTheme(newTheme: string) {
 
 .indicator {
   padding: 8px 12px;
-  background-color: $color-gray-light;
+  background-color: var(--indicator-background);
   border-radius: $border-radius-sm;
   font-size: $font-size-normal;
   font-weight: $font-weight-bold;
   min-width: $width-indicator;
+  color: var(--indicator-text-color);
 }
 </style>

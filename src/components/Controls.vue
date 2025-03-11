@@ -250,6 +250,7 @@ export default defineComponent({
     
     label {
       margin-right: $spacing-sm;
+      color: var(--text-color);
     }
     
     input {
@@ -263,7 +264,7 @@ export default defineComponent({
   flex-direction: column;
   gap: $spacing-sm;
   padding: $spacing-sm;
-  border: $border-width solid $color-gray;
+  border: $border-width solid var(--properties-group-border-color);
   border-radius: $border-radius-sm;
   margin-bottom: $spacing-sm;
 }
@@ -286,7 +287,7 @@ input {
   flex-direction: column;
   margin: $spacing-sm 0;
   padding: $spacing-sm;
-  border: $border-width solid $color-gray;
+  border: $border-width solid var(--toggle-group-border-color);
   border-radius: $border-radius-sm;
 }
 
@@ -301,12 +302,13 @@ input {
   
   .toggle-text {
     font-weight: $font-weight-bold;
+    color: var(--text-color);
   }
 }
 
 .toggle-info {
   margin-top: $spacing-xs;
   font-size: $font-size-small;
-  color: $color-gray-dark;
+  color: var(--toggle-info-color);
 }
 </style>
