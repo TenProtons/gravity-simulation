@@ -122,12 +122,37 @@ function toggleTheme(newTheme: string) {
 .light {
   background-color: $color-background-light;
   color: $color-text-light;
+  
+  input, select, textarea {
+    background-color: $color-white;
+    color: $color-text-light;
+    border-color: $color-gray;
+  }
 }
 
 /* Dark theme */
 .dark {
   background-color: $color-background-dark;
   color: $color-text-dark;
+  
+  input, select, textarea {
+    background-color: #333;
+    color: $color-text-dark;
+    border-color: #555;
+  }
+  
+  .indicator {
+    background-color: #444;
+    color: $color-text-dark;
+  }
+  
+  .toggle-group, .properties-group {
+    border-color: #555;
+  }
+  
+  .toggle-info {
+    color: #aaa;
+  }
 }
 
 .header {
