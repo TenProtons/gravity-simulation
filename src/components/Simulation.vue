@@ -450,15 +450,15 @@ export default defineComponent({
       context.beginPath();
       context.moveTo(xLine, yFloorPx);
       context.lineTo(xLine, yTopPx);
-      context.strokeStyle = '#000';
+      context.strokeStyle = '#000'; // Direct color
       context.lineWidth = 2;
       context.stroke();
 
       // Add unit label "m" at the top of the scale
-      context.font = '12px sans-serif';
+      context.font = '12px "Roboto", sans-serif'; // Explicitly set font to Roboto
       context.textAlign = 'center';
       context.textBaseline = 'bottom';
-      context.fillStyle = '#000';
+      context.fillStyle = '#000'; // Direct color
       context.fillText('m', xLine - 20, yTopPx - 5);
 
       // Tick marks every 0.2 m
@@ -470,10 +470,10 @@ export default defineComponent({
         context.stroke();
 
         // Label
-        context.font = '10px sans-serif';
+        context.font = '10px "Roboto", sans-serif'; // Explicitly set font to Roboto
         context.textAlign = 'right';
         context.textBaseline = 'middle';
-        context.fillStyle = '#000';
+        context.fillStyle = '#000'; // Direct color
         context.fillText(m.toFixed(1), xLine - 15, yTick);
       }
     }
@@ -491,7 +491,7 @@ export default defineComponent({
       context.beginPath();
       context.moveTo(scaleMargin, floorYpx);
       context.lineTo(canvasWidth, floorYpx);
-      context.strokeStyle = '#000';
+      context.strokeStyle = '#000'; // Use direct color
       context.lineWidth = 2;
       context.stroke();
 
@@ -501,7 +501,7 @@ export default defineComponent({
         context.beginPath();
         context.moveTo(scaleMargin - 15, heightLineY);
         context.lineTo(scaleMargin + (canvasWidth - scaleMargin) / 2, heightLineY);
-        context.strokeStyle = '#aaa';
+        context.strokeStyle = '#aaa'; // Use direct color
         context.lineWidth = 1;
         context.setLineDash([3, 3]); // Dashed line
         context.stroke();
@@ -515,9 +515,9 @@ export default defineComponent({
 
       context.beginPath();
       context.arc(ballX, ballY, radiusPx, 0, 2 * Math.PI);
-      context.fillStyle = '#007bff';
+      context.fillStyle = '#007bff'; // Use direct color for the ball fill
       context.fill();
-      context.strokeStyle = '#003f7f';
+      context.strokeStyle = '#003f7f'; // Use direct color for the ball border
       context.stroke();
     }
 
@@ -563,7 +563,9 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style lang="scss">
+@import '../assets/variables.scss';
+
 .simulation-container {
   position: relative;
   display: flex;
@@ -572,8 +574,8 @@ export default defineComponent({
 }
 
 .simulation-canvas {
-  border: 1px solid #ccc;
+  border: $border-width solid $color-gray;
   touch-action: none; /* helps with mobile dragging */
-  background: #fff;
+  background: $color-white;
 }
 </style>

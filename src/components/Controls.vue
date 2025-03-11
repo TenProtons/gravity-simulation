@@ -228,13 +228,15 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
+@import '../assets/variables.scss';
+
 .controls {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: $spacing-md;
   width: 100%;
-  margin-bottom: 1rem;
+  margin-bottom: $spacing-md;
 }
 
 .input-group {
@@ -247,7 +249,7 @@ export default defineComponent({
     justify-content: space-between;
     
     label {
-      margin-right: 10px;
+      margin-right: $spacing-sm;
     }
     
     input {
@@ -259,33 +261,33 @@ export default defineComponent({
 .properties-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-bottom: 0.5rem;
+  gap: $spacing-sm;
+  padding: $spacing-sm;
+  border: $border-width solid $color-gray;
+  border-radius: $border-radius-sm;
+  margin-bottom: $spacing-sm;
 }
 
 select {
   padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  background-color: white;
+  border-radius: $border-radius-sm;
+  border: $border-width solid $color-gray;
+  background-color: $color-white;
 }
 
 input {
   padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
+  border-radius: $border-radius-sm;
+  border: $border-width solid $color-gray;
 }
 
 .toggle-group {
   display: flex;
   flex-direction: column;
-  margin: 0.5rem 0;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  margin: $spacing-sm 0;
+  padding: $spacing-sm;
+  border: $border-width solid $color-gray;
+  border-radius: $border-radius-sm;
 }
 
 .toggle-label {
@@ -294,17 +296,17 @@ input {
   cursor: pointer;
   
   input[type="checkbox"] {
-    margin-right: 8px;
+    margin-right: $spacing-xs;
   }
   
   .toggle-text {
-    font-weight: bold;
+    font-weight: $font-weight-bold;
   }
 }
 
 .toggle-info {
-  margin-top: 4px;
-  font-size: 12px;
-  color: #666;
+  margin-top: $spacing-xs;
+  font-size: $font-size-small;
+  color: $color-gray-dark;
 }
 </style>

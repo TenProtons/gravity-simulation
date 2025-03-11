@@ -107,25 +107,27 @@ function toggleTheme(newTheme: string) {
 }
 </script>
 
-<style scoped>
+<style lang="scss">
+@import './assets/variables.scss';
+
 .app {
   display: flex;
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
-  padding: 1rem;
+  padding: $spacing-md;
 }
 
 /* Light theme */
 .light {
-  background-color: #ffffff;
-  color: #000;
+  background-color: $color-background-light;
+  color: $color-text-light;
 }
 
 /* Dark theme */
 .dark {
-  background-color: #222;
-  color: #fff;
+  background-color: $color-background-dark;
+  color: $color-text-dark;
 }
 
 .header {
@@ -136,8 +138,8 @@ function toggleTheme(newTheme: string) {
 .header-controls {
   display: flex;
   justify-content: center;
-  gap: 1rem;
-  margin-top: 1rem;
+  gap: $spacing-md;
+  margin-top: $spacing-md;
 }
 
 .main-content {
@@ -145,7 +147,7 @@ function toggleTheme(newTheme: string) {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 640px;
+  max-width: $max-width-container;
 }
 
 .simulation-section {
@@ -157,15 +159,15 @@ function toggleTheme(newTheme: string) {
 .indicators {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: $spacing-sm;
 }
 
 .indicator {
   padding: 8px 12px;
-  background-color: #f0f0f0;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: bold;
-  min-width: 150px;
+  background-color: $color-gray-light;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-normal;
+  font-weight: $font-weight-bold;
+  min-width: $width-indicator;
 }
 </style>
