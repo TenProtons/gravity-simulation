@@ -1,29 +1,59 @@
 <template>
-  <div class="language-switcher">
-    <button @click="setLanguage('en')">EN</button>
-    <button @click="setLanguage('uk')">UK</button>
-  </div>
+  <button 
+    class="language-toggle" 
+    @click="toggleLanguage" 
+    :title="$t('controls.language')"
+  >
+    {{ currentLocale === 'en' ? 'EN' : 'UK' }}
+  </button>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
-
-export default defineComponent({
-  name: 'LanguageSwitcher',
-  setup() {
-    const { locale } = useI18n();
-    function setLanguage(lang: string) {
-      locale.value = lang;
-    }
-    return { setLanguage };
-  }
-});
+export default { name: 'LanguageSwitcher' }
 </script>
 
-<style scoped>
-.language-switcher {
-  display: flex;
-  gap: 0.5rem;
+<script lang="ts" setup>
+import { useI18n } from 'vue-i18n';
+import { ref, onMounted } from 'vue';
+
+const { locale } = useI18n();
+const currentLocale = ref(locale.value);
+
+onMounted(() => {
+  // Initialize locale from localStorage or default to 'en'
+  const savedLocale = localStorage.getItem('locale');
+  if (savedLocale === 'en' || savedLocale === 'uk') {
+    locale.value = savedLocale;
+    currentLocale.value = savedLocale;
+  }
+});
+
+function toggleLanguage() {
+  // Toggle between 'en' and 'uk'
+  const newLocale = currentLocale.value === 'en' ? 'uk' : 'en';
+  locale.value = newLocale;
+  currentLocale.value = newLocale;
+  
+  // Save preference to localStorage
+  localStorage.setItem('locale', newLocale);
+}
+</script>
+
+<style lang="scss" scoped>
+@import '../assets/variables.scss';
+
+.language-toggle {
+  background-color: transparent;
+  border: $border-width solid $color-gray;
+  border-radius: $border-radius-sm;
+  padding: $spacing-xs $spacing-sm;
+  cursor: pointer;
+  font-weight: $font-weight-bold;
+  min-width: 40px;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: $color-gray-light;
+  }
 }
 </style>
