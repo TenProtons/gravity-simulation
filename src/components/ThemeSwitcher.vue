@@ -1,6 +1,6 @@
 <template>
   <div class="theme-switcher">
-    <button @click="toggleTheme">
+    <button class="button" @click="toggleTheme">
       {{ currentTheme === 'light' ? $t('themes.dark') : $t('themes.light') }}
     </button>
   </div>
@@ -27,7 +27,7 @@ function toggleTheme() {
 }
 </script>
 
-<style scoped>
+<style lang="scss">
 .theme-switcher {
   display: flex;
   gap: 0.5rem;

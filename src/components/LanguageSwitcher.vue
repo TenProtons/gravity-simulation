@@ -1,10 +1,10 @@
 <template>
   <button 
-    class="language-toggle" 
+    class="language-toggle button" 
     @click="toggleLanguage" 
     :title="$t('controls.language')"
   >
-    {{ currentLocale === 'en' ? 'EN' : 'UK' }}
+    {{ currentLocale === 'en' ? 'Українська' : 'English' }}
   </button>
 </template>
 
@@ -38,21 +38,3 @@ function toggleLanguage() {
   localStorage.setItem('locale', newLocale);
 }
 </script>
-
-<style lang="scss">
-.language-toggle {
-  background-color: transparent;
-  border: var(--border-width) solid var(--input-border-color);
-  border-radius: var(--border-radius-sm);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  cursor: pointer;
-  font-weight: var(--font-weight-bold);
-  min-width: 40px;
-  color: var(--text-color);
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background-color: var(--gray-light-color);
-  }
-}
-</style>

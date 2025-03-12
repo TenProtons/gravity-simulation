@@ -105,6 +105,22 @@ button {
   cursor: pointer;
 }
 
+.button {
+  background-color: transparent;
+  border: var(--border-width) solid var(--input-border-color);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  cursor: pointer;
+  font-weight: var(--font-weight-bold);
+  min-width: 40px;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: var(--gray-light-color);
+  }
+}
+
 h1, h2, h3, h4, h5, h6 {
   font-weight: var(--font-weight-bold);
   color: var(--text-color);
