@@ -442,6 +442,9 @@ export default defineComponent({
       if (!ctx.value) return;
       const context = ctx.value;
 
+      // Get color values from CSS variables
+      const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+
       // Draw a vertical line from floor (y=0) to top (y=SCALE_HEIGHT_METERS).
       const xLine = scaleMargin - 5;
       const yFloorPx = meterToPixel(0);
@@ -450,15 +453,15 @@ export default defineComponent({
       context.beginPath();
       context.moveTo(xLine, yFloorPx);
       context.lineTo(xLine, yTopPx);
-      context.strokeStyle = '#000'; // Direct color
+      context.strokeStyle = textColor;
       context.lineWidth = 2;
       context.stroke();
 
       // Add unit label "m" at the top of the scale
-      context.font = '12px "Roboto", sans-serif'; // Explicitly set font to Roboto
+      context.font = '12px "Roboto", sans-serif';
       context.textAlign = 'center';
       context.textBaseline = 'bottom';
-      context.fillStyle = '#000'; // Direct color
+      context.fillStyle = textColor;
       context.fillText('m', xLine - 20, yTopPx - 5);
 
       // Tick marks every 0.2 m
@@ -470,10 +473,10 @@ export default defineComponent({
         context.stroke();
 
         // Label
-        context.font = '10px "Roboto", sans-serif'; // Explicitly set font to Roboto
+        context.font = '10px "Roboto", sans-serif';
         context.textAlign = 'right';
         context.textBaseline = 'middle';
-        context.fillStyle = '#000'; // Direct color
+        context.fillStyle = textColor;
         context.fillText(m.toFixed(1), xLine - 15, yTick);
       }
     }
@@ -483,6 +486,12 @@ export default defineComponent({
       const context = ctx.value;
       context.clearRect(0, 0, canvasWidth, canvasHeight);
 
+      // Get color values from CSS variables
+      const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+      const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
+      const primaryDarkColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-dark-color').trim();
+      const grayDarkColor = getComputedStyle(document.documentElement).getPropertyValue('--gray-dark-color').trim();
+
       // Draw the scale on the left side
       drawScale();
 
@@ -491,7 +500,7 @@ export default defineComponent({
       context.beginPath();
       context.moveTo(scaleMargin, floorYpx);
       context.lineTo(canvasWidth, floorYpx);
-      context.strokeStyle = '#000'; // Use direct color
+      context.strokeStyle = textColor;
       context.lineWidth = 2;
       context.stroke();
 
@@ -501,7 +510,7 @@ export default defineComponent({
         context.beginPath();
         context.moveTo(scaleMargin - 15, heightLineY);
         context.lineTo(scaleMargin + (canvasWidth - scaleMargin) / 2, heightLineY);
-        context.strokeStyle = '#aaa'; // Use direct color
+        context.strokeStyle = grayDarkColor;
         context.lineWidth = 1;
         context.setLineDash([3, 3]); // Dashed line
         context.stroke();
@@ -515,9 +524,9 @@ export default defineComponent({
 
       context.beginPath();
       context.arc(ballX, ballY, radiusPx, 0, 2 * Math.PI);
-      context.fillStyle = '#007bff'; // Use direct color for the ball fill
+      context.fillStyle = primaryColor;
       context.fill();
-      context.strokeStyle = '#003f7f'; // Use direct color for the ball border
+      context.strokeStyle = primaryDarkColor;
       context.stroke();
     }
 
@@ -564,8 +573,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-@import '../assets/variables.scss';
-
 .simulation-container {
   position: relative;
   display: flex;
@@ -574,7 +581,7 @@ export default defineComponent({
 }
 
 .simulation-canvas {
-  border: $border-width solid var(--gray-color);
+  border: var(--border-width) solid var(--gray-color);
   touch-action: none; /* helps with mobile dragging */
   background: var(--white-color);
 }

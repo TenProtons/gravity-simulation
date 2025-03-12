@@ -40,15 +40,13 @@ function toggleLanguage() {
 </script>
 
 <style lang="scss">
-@import '../assets/variables.scss';
-
 .language-toggle {
   background-color: transparent;
-  border: $border-width solid var(--input-border-color);
-  border-radius: $border-radius-sm;
-  padding: $spacing-xs $spacing-sm;
+  border: var(--border-width) solid var(--input-border-color);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
   cursor: pointer;
-  font-weight: $font-weight-bold;
+  font-weight: var(--font-weight-bold);
   min-width: 40px;
   color: var(--text-color);
   transition: all 0.2s ease;

@@ -229,14 +229,12 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-@import '../assets/variables.scss';
-
 .controls {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: var(--spacing-md);
   width: 100%;
-  margin-bottom: $spacing-md;
+  margin-bottom: var(--spacing-md);
 }
 
 .input-group {
@@ -249,7 +247,7 @@ export default defineComponent({
     justify-content: space-between;
     
     label {
-      margin-right: $spacing-sm;
+      margin-right: var(--spacing-sm);
       color: var(--text-color);
     }
     
@@ -262,33 +260,33 @@ export default defineComponent({
 .properties-group {
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
-  padding: $spacing-sm;
-  border: $border-width solid var(--properties-group-border-color);
-  border-radius: $border-radius-sm;
-  margin-bottom: $spacing-sm;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  border: var(--border-width) solid var(--properties-group-border-color);
+  border-radius: var(--border-radius-sm);
+  margin-bottom: var(--spacing-sm);
 }
 
 select {
   padding: 8px;
-  border-radius: $border-radius-sm;
-  border: $border-width solid $color-gray;
-  background-color: $color-white;
+  border-radius: var(--border-radius-sm);
+  border: var(--border-width) solid var(--gray-color);
+  background-color: var(--white-color);
 }
 
 input {
   padding: 8px;
-  border-radius: $border-radius-sm;
-  border: $border-width solid $color-gray;
+  border-radius: var(--border-radius-sm);
+  border: var(--border-width) solid var(--gray-color);
 }
 
 .toggle-group {
   display: flex;
   flex-direction: column;
-  margin: $spacing-sm 0;
-  padding: $spacing-sm;
-  border: $border-width solid var(--toggle-group-border-color);
-  border-radius: $border-radius-sm;
+  margin: var(--spacing-sm) 0;
+  padding: var(--spacing-sm);
+  border: var(--border-width) solid var(--toggle-group-border-color);
+  border-radius: var(--border-radius-sm);
 }
 
 .toggle-label {
@@ -297,18 +295,18 @@ input {
   cursor: pointer;
   
   input[type="checkbox"] {
-    margin-right: $spacing-xs;
+    margin-right: var(--spacing-xs);
   }
   
   .toggle-text {
-    font-weight: $font-weight-bold;
+    font-weight: var(--font-weight-bold);
     color: var(--text-color);
   }
 }
 
 .toggle-info {
-  margin-top: $spacing-xs;
-  font-size: $font-size-small;
+  margin-top: var(--spacing-xs);
+  font-size: var(--font-size-small);
   color: var(--toggle-info-color);
 }
 </style>

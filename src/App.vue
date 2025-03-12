@@ -108,14 +108,12 @@ function toggleTheme(newTheme: string) {
 </script>
 
 <style lang="scss">
-@import './assets/variables.scss';
-
 .app {
   display: flex;
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
-  padding: $spacing-md;
+  padding: var(--spacing-md);
   background-color: var(--background-color);
   color: var(--text-color);
 }
@@ -128,8 +126,8 @@ function toggleTheme(newTheme: string) {
 .header-controls {
   display: flex;
   justify-content: center;
-  gap: $spacing-md;
-  margin-top: $spacing-md;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
 }
 
 .main-content {
@@ -137,7 +135,7 @@ function toggleTheme(newTheme: string) {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: $max-width-container;
+  max-width: var(--max-width-container);
 }
 
 .simulation-section {
@@ -149,16 +147,16 @@ function toggleTheme(newTheme: string) {
 .indicators {
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
+  gap: var(--spacing-sm);
 }
 
 .indicator {
   padding: 8px 12px;
   background-color: var(--indicator-background);
-  border-radius: $border-radius-sm;
-  font-size: $font-size-normal;
-  font-weight: $font-weight-bold;
-  min-width: $width-indicator;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-bold);
+  min-width: var(--width-indicator);
   color: var(--indicator-text-color);
 }
 </style>
