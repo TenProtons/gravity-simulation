@@ -1,7 +1,7 @@
 <template>
   <div class="theme-switcher">
-    <button class="button" @click="toggleTheme">
-      {{ currentTheme === 'light' ? $t('themes.dark') : $t('themes.light') }}
+    <button @click="toggleTheme">
+      {{ currentTheme === 'light' ? '🌙' : '☀️' }}
     </button>
   </div>
 </template>
@@ -31,5 +31,14 @@ function toggleTheme() {
 .theme-switcher {
   display: flex;
   gap: 0.5rem;
+
+  button {
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+  }
 }
 </style>
