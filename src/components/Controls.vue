@@ -87,7 +87,6 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 
-// Define the material properties
 const materialsList = {
   hydrogen: { name: 'Hydrogen', density: 0.0899, elasticity: 0.0 },
   lead: { name: 'Lead', density: 11340, elasticity: 0.16 },
@@ -240,6 +239,7 @@ export default defineComponent({
 .input-group {
   display: flex;
   flex-direction: column;
+  gap: var(--spacing-xs);
   
   &.horizontal {
     flex-direction: row;

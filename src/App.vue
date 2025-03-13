@@ -24,6 +24,7 @@
           :ballDiameter="simulationBallDiameter"
           :scaleHeight="simulationScaleHeight"
           :vacuum="simulationVacuum"
+          :currentTheme="theme"
           @fallTimeUpdate="handleFallTimeUpdate"
           @ballInfoUpdate="handleBallInfoUpdate"
         />

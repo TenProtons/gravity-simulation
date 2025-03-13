@@ -45,6 +45,10 @@ export default defineComponent({
     vacuum: {
       type: Boolean,
       default: false
+    },
+    currentTheme: {
+      type: String,
+      default: 'light'
     }
   },
   emits: ['fallTimeUpdate', 'ballInfoUpdate'],
@@ -146,66 +150,6 @@ export default defineComponent({
         weight: ballWeight
       });
     }
-
-    // Update watch functions
-    watch(
-      () => props.ballDensity,
-      (newDensity) => {
-        mass = computeMass(newDensity);
-        dragConstant = computeDragConstant(mass);
-        updateBallInfo();
-        draw();
-      }
-    );
-
-    watch(
-      () => props.gravity,
-      () => {
-        updateBallInfo();
-        draw();
-      },
-      { immediate: true }
-    );
-
-    watch(
-      () => props.ballDiameter,
-      () => {
-        mass = computeMass(props.ballDensity);
-        dragConstant = computeDragConstant(mass);
-        updateBallInfo();
-        draw();
-      }
-    );
-
-    watch(
-      () => props.scaleHeight,
-      () => {
-        mass = computeMass(props.ballDensity);
-        dragConstant = computeDragConstant(mass);
-        
-        if (ball.y > props.scaleHeight) {
-          ball.y = props.scaleHeight;
-        }
-        
-        updateBallInfo();
-        draw();
-      }
-    );
-
-    watch(
-      () => props.elasticity,
-      (newElasticity) => {
-        restitution = newElasticity;
-      }
-    );
-
-    watch(
-      () => props.vacuum,
-      () => {
-        updateBallInfo();
-        draw();
-      }
-    );
 
     /*********************************
      *   3. EVENT HANDLERS & DRAG    *
@@ -482,12 +426,16 @@ export default defineComponent({
     }
 
     function draw() {
+      console.log('draw');
+      
       if (!ctx.value || !canvasRef.value) return;
       const context = ctx.value;
       context.clearRect(0, 0, canvasWidth, canvasHeight);
 
       // Get color values from CSS variables
       const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+      console.log('textColor', textColor);
+      
       const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
       const primaryDarkColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-dark-color').trim();
       const grayDarkColor = getComputedStyle(document.documentElement).getPropertyValue('--gray-dark-color').trim();
@@ -559,6 +507,75 @@ export default defineComponent({
       }
     });
 
+    // Update watch functions
+    watch(
+      () => props.ballDensity,
+      (newDensity) => {
+        mass = computeMass(newDensity);
+        dragConstant = computeDragConstant(mass);
+        updateBallInfo();
+        draw();
+      }
+    );
+
+    watch(
+      () => props.gravity,
+      () => {
+        updateBallInfo();
+        draw();
+      },
+      { immediate: true }
+    );
+
+    watch(
+      () => props.ballDiameter,
+      () => {
+        mass = computeMass(props.ballDensity);
+        dragConstant = computeDragConstant(mass);
+        updateBallInfo();
+        draw();
+      }
+    );
+
+    watch(
+      () => props.scaleHeight,
+      () => {
+        mass = computeMass(props.ballDensity);
+        dragConstant = computeDragConstant(mass);
+        
+        if (ball.y > props.scaleHeight) {
+          ball.y = props.scaleHeight;
+        }
+        
+        updateBallInfo();
+        draw();
+      }
+    );
+
+    watch(
+      () => props.elasticity,
+      (newElasticity) => {
+        restitution = newElasticity;
+      }
+    );
+
+    watch(
+      () => props.vacuum,
+      () => {
+        updateBallInfo();
+        draw();
+      }
+    );
+
+    // Add a watch for theme changes
+    watch(
+      () => props.currentTheme,
+      () => {
+        // Redraw the canvas when theme changes
+        draw();
+      }
+    );
+
     /*********************************
      *       7. RETURN BINDINGS      *
      *********************************/
@@ -583,6 +600,6 @@ export default defineComponent({
 .simulation-canvas {
   border: var(--border-width) solid var(--gray-color);
   touch-action: none; /* helps with mobile dragging */
-  background: var(--white-color);
+  background: var(--background-color);
 }
 </style>
