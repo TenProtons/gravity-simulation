@@ -132,8 +132,6 @@ export default defineComponent({
 
     // We'll keep these updated when properties change
     let mass = computeMass(props.ballDensity);
-    // Store but don't reference dragConstant directly since it's not used
-    computeDragConstant(mass);
     
     // Add a function to emit ball info
     function updateBallInfo() {
