@@ -16,7 +16,8 @@ import {
   onMounted,
   onUnmounted,
   watch,
-  computed
+  computed,
+  nextTick
 } from 'vue';
 
 export default defineComponent({
@@ -382,13 +383,33 @@ export default defineComponent({
     /*********************************
      *       5. DRAWING METHODS      *
      *********************************/
+    // Add a ref to track theme colors that we can watch reactively
+    const themeColors = ref({
+      textColor: '',
+      primaryColor: '',
+      primaryDarkColor: '',
+      grayDarkColor: ''
+    });
+
+    // Update theme colors from container element
+    function updateThemeColors() {
+      const container = canvasRef.value?.parentElement;
+      if (!container) return;
+      
+      const styles = getComputedStyle(container);
+      themeColors.value = {
+        textColor: styles.getPropertyValue('--text-color').trim(),
+        primaryColor: styles.getPropertyValue('--primary-color').trim(),
+        primaryDarkColor: styles.getPropertyValue('--primary-dark-color').trim(),
+        grayDarkColor: styles.getPropertyValue('--gray-dark-color').trim()
+      };
+    }
+
+    // Modify drawScale to use the reactive themeColors
     function drawScale() {
       if (!ctx.value) return;
       const context = ctx.value;
-
-      // Get color values from CSS variables
-      const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
-
+      
       // Draw a vertical line from floor (y=0) to top (y=SCALE_HEIGHT_METERS).
       const xLine = scaleMargin - 5;
       const yFloorPx = meterToPixel(0);
@@ -397,7 +418,7 @@ export default defineComponent({
       context.beginPath();
       context.moveTo(xLine, yFloorPx);
       context.lineTo(xLine, yTopPx);
-      context.strokeStyle = textColor;
+      context.strokeStyle = themeColors.value.textColor;
       context.lineWidth = 2;
       context.stroke();
 
@@ -405,7 +426,7 @@ export default defineComponent({
       context.font = '12px "Roboto", sans-serif';
       context.textAlign = 'center';
       context.textBaseline = 'bottom';
-      context.fillStyle = textColor;
+      context.fillStyle = themeColors.value.textColor;
       context.fillText('m', xLine - 20, yTopPx - 5);
 
       // Tick marks every 0.2 m
@@ -420,26 +441,17 @@ export default defineComponent({
         context.font = '10px "Roboto", sans-serif';
         context.textAlign = 'right';
         context.textBaseline = 'middle';
-        context.fillStyle = textColor;
+        context.fillStyle = themeColors.value.textColor;
         context.fillText(m.toFixed(1), xLine - 15, yTick);
       }
     }
 
+    // Modify draw function to use the reactive themeColors
     function draw() {
-      console.log('draw');
-      
       if (!ctx.value || !canvasRef.value) return;
       const context = ctx.value;
       context.clearRect(0, 0, canvasWidth, canvasHeight);
-
-      // Get color values from CSS variables
-      const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
-      console.log('textColor', textColor);
       
-      const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
-      const primaryDarkColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-dark-color').trim();
-      const grayDarkColor = getComputedStyle(document.documentElement).getPropertyValue('--gray-dark-color').trim();
-
       // Draw the scale on the left side
       drawScale();
 
@@ -448,7 +460,7 @@ export default defineComponent({
       context.beginPath();
       context.moveTo(scaleMargin, floorYpx);
       context.lineTo(canvasWidth, floorYpx);
-      context.strokeStyle = textColor;
+      context.strokeStyle = themeColors.value.textColor;
       context.lineWidth = 2;
       context.stroke();
 
@@ -458,7 +470,7 @@ export default defineComponent({
         context.beginPath();
         context.moveTo(scaleMargin - 15, heightLineY);
         context.lineTo(scaleMargin + (canvasWidth - scaleMargin) / 2, heightLineY);
-        context.strokeStyle = grayDarkColor;
+        context.strokeStyle = themeColors.value.grayDarkColor;
         context.lineWidth = 1;
         context.setLineDash([3, 3]); // Dashed line
         context.stroke();
@@ -472,9 +484,9 @@ export default defineComponent({
 
       context.beginPath();
       context.arc(ballX, ballY, radiusPx, 0, 2 * Math.PI);
-      context.fillStyle = primaryColor;
+      context.fillStyle = themeColors.value.primaryColor;
       context.fill();
-      context.strokeStyle = primaryDarkColor;
+      context.strokeStyle = themeColors.value.primaryDarkColor;
       context.stroke();
     }
 
@@ -490,10 +502,25 @@ export default defineComponent({
     /*********************************
      *     6. LIFECYCLE HOOKS        *
      *********************************/
+    // Replace the old theme watch with this cleaner version
+    watch(
+      () => props.currentTheme,
+      () => {
+        // Use nextTick to ensure the DOM has updated
+        nextTick(() => {
+          updateThemeColors();
+          draw();
+        });
+      }
+    );
+
+    // Update onMounted and onUnmounted
     onMounted(() => {
       const canvas = canvasRef.value;
       if (canvas) {
         ctx.value = canvas.getContext('2d');
+        // Initial update of theme colors
+        updateThemeColors();
       }
       addEventListeners();
       updateBallInfo();
@@ -563,15 +590,6 @@ export default defineComponent({
       () => props.vacuum,
       () => {
         updateBallInfo();
-        draw();
-      }
-    );
-
-    // Add a watch for theme changes
-    watch(
-      () => props.currentTheme,
-      () => {
-        // Redraw the canvas when theme changes
         draw();
       }
     );
