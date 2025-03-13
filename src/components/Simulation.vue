@@ -110,8 +110,7 @@ export default defineComponent({
     // Physical constants
     const airDensity = 1.2; // kg/m³ at 20°C
     const Cd = 0.47;        // drag coefficient for a sphere
-    const ironDensity = 7870; // kg/m³
-
+    
     // Use elasticity directly from props
     let restitution = props.elasticity;
 
@@ -133,7 +132,8 @@ export default defineComponent({
 
     // We'll keep these updated when properties change
     let mass = computeMass(props.ballDensity);
-    let dragConstant = computeDragConstant(mass);
+    // Store but don't reference dragConstant directly since it's not used
+    computeDragConstant(mass);
     
     // Add a function to emit ball info
     function updateBallInfo() {
@@ -539,7 +539,7 @@ export default defineComponent({
       () => props.ballDensity,
       (newDensity) => {
         mass = computeMass(newDensity);
-        dragConstant = computeDragConstant(mass);
+        computeDragConstant(mass);
         updateBallInfo();
         draw();
       }
@@ -558,7 +558,7 @@ export default defineComponent({
       () => props.ballDiameter,
       () => {
         mass = computeMass(props.ballDensity);
-        dragConstant = computeDragConstant(mass);
+        computeDragConstant(mass);
         updateBallInfo();
         draw();
       }
@@ -568,7 +568,7 @@ export default defineComponent({
       () => props.scaleHeight,
       () => {
         mass = computeMass(props.ballDensity);
-        dragConstant = computeDragConstant(mass);
+        computeDragConstant(mass);
         
         if (ball.y > props.scaleHeight) {
           ball.y = props.scaleHeight;
