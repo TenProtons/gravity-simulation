@@ -41,6 +41,7 @@
         </div>
       </div>
     </div>
+    <span class="author">by Maksym Bondarenko v1.0</span>
   </div>
 </template>
 
@@ -159,5 +160,12 @@ function toggleTheme(newTheme: string) {
   font-weight: var(--font-weight-bold);
   min-width: var(--width-indicator);
   color: var(--indicator-text-color);
+}
+
+.author {
+  display: block;
+  margin-top: var(--spacing-xl);
+  margin-right: auto;
+  font-size: var(--font-size-small);
 }
 </style>
