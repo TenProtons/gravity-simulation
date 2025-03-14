@@ -113,7 +113,7 @@ function toggleTheme(newTheme: string) {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 100vh;
+  flex: 1;
   padding: var(--spacing-md);
   background-color: var(--background-color);
   color: var(--text-color);
