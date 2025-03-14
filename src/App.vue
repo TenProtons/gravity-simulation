@@ -143,6 +143,8 @@ function toggleTheme(newTheme: string) {
 .simulation-section {
   display: flex;
   align-items: flex-start;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 20px;
 }
 

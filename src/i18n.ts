@@ -2,7 +2,7 @@ import { createI18n } from 'vue-i18n'
 
 const messages = {
   en: {
-    appTitle: "Ball Simulation",
+    appTitle: "Gravity Simulation",
     controls: {
       gravity: "Gravity (m/s²)",
       density: "Density (kg/m³)",
@@ -23,7 +23,7 @@ const messages = {
     }
   },
   uk: {
-    appTitle: "Симуляція м'ячика",
+    appTitle: "Симуляція Гравітації",
     controls: {
       gravity: "Прискорення (м/с²)",
       density: "Густина (кг/м³)",
